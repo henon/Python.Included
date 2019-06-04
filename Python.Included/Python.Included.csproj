@@ -21,4 +21,8 @@
     <EmbeddedResource Include="Resources\python-3.7.3-embed-amd64.zip" />
   </ItemGroup>
 
+  <ItemGroup>
+    <PackageReference Include="Python.Runtime.NETStandard" Version="3.7.0" />
+  </ItemGroup>
+
 </Project>
