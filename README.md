@@ -16,3 +16,5 @@ Just reference Python.Included via NuGet and you are ready to interop with [Pyth
 ### License
 Since Python.Included distributes Python, it is licensed under the [Python Software Foundation License (PSF)](https://docs.python.org/3/license.html) like Python itself. 
 
+### Links
+* [Project Announcement](https://henon.wordpress.com/2019/06/05/using-python-libraries-in-net-without-a-python-installation/)
