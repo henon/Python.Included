@@ -18,7 +18,7 @@ namespace Python.Included
                 return;
             if (Runtime.Runtime.pyversion!="3.7")
                 throw new InvalidOperationException("You must compile Python.Runtime with PYTHON37 flag! Runtime version: " + Runtime.Runtime.pyversion);
-            Environment.SetEnvironmentVariable("PATH", EmbeddedPythonHome);
+            Environment.SetEnvironmentVariable("PATH", $"{EmbeddedPythonHome};" + Environment.GetEnvironmentVariable("PATH"));
             if (!force && Directory.Exists(EmbeddedPythonHome) && File.Exists(Path.Combine(EmbeddedPythonHome, "python.exe"))) // python seems installed, so exit
                 return;
             await Task.Run(() =>
