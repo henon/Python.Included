@@ -180,7 +180,7 @@ namespace Python.Included
             return Directory.Exists(moduleDir) && File.Exists(Path.Combine(moduleDir, "__init__.py"));
         }
 
-        private static void RunCommand(string command, bool runInBackground = false)
+        public static void RunCommand(string command, bool runInBackground = false)
         {
             System.Diagnostics.Process process = new System.Diagnostics.Process();
             System.Diagnostics.ProcessStartInfo startInfo = new System.Diagnostics.ProcessStartInfo();
@@ -188,10 +188,10 @@ namespace Python.Included
                 startInfo.WindowStyle = System.Diagnostics.ProcessWindowStyle.Hidden;
             startInfo.FileName = "cmd.exe";
             string commandMode = runInBackground ? "/C" : "/K";
-            if (!RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
+            if (RuntimeInformation.IsOSPlatform(OSPlatform.Linux))
             {
                 startInfo.FileName = "/bin/bash";
-                commandMode = commandMode.Replace('/', '-');
+                commandMode = "-c";
             }
             startInfo.Arguments = $"{commandMode} {command}";
             process.StartInfo = startInfo;
