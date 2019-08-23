@@ -144,6 +144,9 @@ namespace Python.Included
 
             CopyEmbeddedResourceToFile(assembly, key, wheelPath, force);
 
+            if (!IsPipInstalled())
+                try { InstallPip(); } catch { throw new FileNotFoundException("pip is not installed"); }
+
             RunCommand($"{pipPath} install {wheelPath}");
         }
 
