@@ -155,6 +155,9 @@ namespace Python.Included
             if (!IsPipInstalled())
                 try { InstallPip(); } catch { throw new FileNotFoundException("pip is not installed"); }
 
+            if (IsModuleInstalled(module_name))
+                return;
+
             string pipPath = Path.Combine(EmbeddedPythonHome, "Scripts", "pip");
             string forceInstall = force ? " --force-reinstall" : "";
             RunCommand($"{pipPath} install {module_name}{forceInstall}");
