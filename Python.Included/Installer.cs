@@ -155,7 +155,7 @@ namespace Python.Included
             if (!IsPipInstalled())
                 try { InstallPip(); } catch { throw new FileNotFoundException("pip is not installed"); }
 
-            if (IsModuleInstalled(module_name))
+            if (IsModuleInstalled(module_name) && !force)
                 return;
 
             string pipPath = Path.Combine(EmbeddedPythonHome, "Scripts", "pip");
