@@ -28,7 +28,7 @@ namespace Python.Included
         {
             if (!PythonEnv.DeployEmbeddedPython)
                 return;
-            if (Runtime.Runtime.pyversion!="3.7")
+            if (Runtime.Runtime.pyversion != "3.7")
                 throw new InvalidOperationException("You must compile Python.Runtime with PYTHON37 flag! Runtime version: " + Runtime.Runtime.pyversion);
             Environment.SetEnvironmentVariable("PATH", $"{EmbeddedPythonHome};" + Environment.GetEnvironmentVariable("PATH"));
             if (!force && Directory.Exists(EmbeddedPythonHome) && File.Exists(Path.Combine(EmbeddedPythonHome, "python.exe"))) // python seems installed, so exit
@@ -40,10 +40,12 @@ namespace Python.Included
                 var zip = Path.Combine(appdata, $"{EMBEDDED_PYTHON}.zip");
                 var resource_name = EMBEDDED_PYTHON;
                 CopyEmbeddedResourceToFile(assembly, resource_name, zip, force);
-                try {
+                try
+                {
                     ZipFile.ExtractToDirectory(zip, zip.Replace(".zip", ""));
                 }
-                catch (Exception e) {
+                catch (Exception e)
+                {
                     // todo log
                 }
             });
@@ -94,10 +96,12 @@ namespace Python.Included
             await Task.Run(() =>
             {
                 CopyEmbeddedResourceToFile(assembly, key, wheelPath, force);
-                try {
+                try
+                {
                     ZipFile.ExtractToDirectory(wheelPath, lib);
                 }
-                catch (Exception e) {
+                catch (Exception e)
+                {
                     // todo
                 }
                 // modify _pth file
@@ -140,10 +144,9 @@ namespace Python.Included
         public static void PipInstallModule(string module_name, bool force = false)
         {
             if (!IsPipInstalled())
-                throw new FileNotFoundException("pip is not installed");
+                try { InstallPip(); } catch { throw new FileNotFoundException("pip is not installed"); }
 
             string pipPath = Path.Combine(EmbeddedPythonHome, "Scripts", "pip");
-
             string forceInstall = force ? " --force-reinstall" : "";
             RunCommand($"{pipPath} install {module_name}{forceInstall}");
         }
