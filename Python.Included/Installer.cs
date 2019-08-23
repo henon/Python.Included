@@ -172,13 +172,8 @@ namespace Python.Included
 
         public static bool IsPythonInstalled()
         {
-            var appdata = Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData);
-            string pythonHome = Path.Combine(appdata, Installer.EMBEDDED_PYTHON);
-            string libDir = Path.Combine(pythonHome, "Lib");
-            bool isInstalled = true;
-            isInstalled &= Directory.Exists(pythonHome);
-            isInstalled &= File.Exists(Path.Combine(pythonHome, "python.exe"));
-            return isInstalled;
+            return File.Exists(Path.Combine(EmbeddedPythonHome, "python.exe"));
+
         }
 
         public static bool IsPipInstalled()
