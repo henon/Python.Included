@@ -13,13 +13,16 @@ namespace Python.Included
     {
         public const string EMBEDDED_PYTHON = "python-3.7.3-embed-amd64";
         public const string PYTHON_VERSION = "python37";
-
+        /// <summary>
+        /// Path to install python. If needed set it before calling SetupPython().
+        /// <para>Default is: Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData)</para>
+        /// </summary>
+        public static string INSTALL_PATH { get; set; } = Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData);
         public static string EmbeddedPythonHome
         {
             get
             {
-                var appdata = Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData);
-                var install_dir = Path.Combine(appdata, EMBEDDED_PYTHON);
+                var install_dir = Path.Combine(INSTALL_PATH, EMBEDDED_PYTHON);
                 return install_dir;
             }
         }
@@ -36,8 +39,7 @@ namespace Python.Included
             await Task.Run(() =>
             {
                 var assembly = typeof(Installer).Assembly;
-                var appdata = Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData);
-                var zip = Path.Combine(appdata, $"{EMBEDDED_PYTHON}.zip");
+                var zip = Path.Combine(INSTALL_PATH, $"{EMBEDDED_PYTHON}.zip");
                 var resource_name = EMBEDDED_PYTHON;
                 CopyEmbeddedResourceToFile(assembly, resource_name, zip, force);
                 try
