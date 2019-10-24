@@ -217,24 +217,32 @@ namespace Python.Included
             return Directory.Exists(moduleDir) && File.Exists(Path.Combine(moduleDir, "__init__.py"));
         }
 
+        /// <summary>
+        /// Runs the specified command as a local system cmd processes.
+        /// </summary>
+        /// <param name="command">The arguments passed to cmd.</param>
+        /// <param name="runInBackground">
+        /// Indicates that no command windows will be visible and the process will automatically
+        /// terminate when complete. When true, the command window must be manually closed before
+        /// processing will continue.
+        /// </param>
         public static void RunCommand(string command, bool runInBackground = false)
         {
             System.Diagnostics.Process process = new System.Diagnostics.Process();
-            System.Diagnostics.ProcessStartInfo startInfo = new System.Diagnostics.ProcessStartInfo();
 
-            if (runInBackground)
-                startInfo.WindowStyle = System.Diagnostics.ProcessWindowStyle.Hidden;
-
-            startInfo.FileName = "cmd.exe";
-            string commandMode = runInBackground ? "/C" : "/K";
-            if (RuntimeInformation.IsOSPlatform(OSPlatform.Linux))
+            process.StartInfo = new System.Diagnostics.ProcessStartInfo()
             {
-                startInfo.FileName = "/bin/bash";
-                commandMode = "-c";
-            }
+                WindowStyle = System.Diagnostics.ProcessWindowStyle.Hidden,
+                FileName = RuntimeInformation.IsOSPlatform(OSPlatform.Linux) ? "/bin/bash" : "cmd.exe",
+                Arguments = $"{(RuntimeInformation.IsOSPlatform(OSPlatform.Linux) ? "-c" : (runInBackground ? "/C" : "/K"))} {command}",
 
-            startInfo.Arguments = $"{commandMode} {command}";
-            process.StartInfo = startInfo;
+                // If the UseShellExecute property is true, the CreateNoWindow property value is ignored and a new window is created.
+                // .NET Core does not support creating windows directly on Unix/Linux/macOS and the property is ignored.
+
+                UseShellExecute = !runInBackground,
+                CreateNoWindow = true,
+            };
+            
             process.Start();
             process.WaitForExit();
         }
