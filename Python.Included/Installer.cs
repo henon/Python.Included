@@ -152,24 +152,49 @@ namespace Python.Included
             RunCommand($"{pipPath} install {wheelPath}");
         }
 
-        public static void PipInstallModule(string module_name, bool force = false)
+        /// <summary>
+        /// Uses pip to find and install the specified package.
+        /// </summary>
+        /// <param name="module_name">The module/package to install </param>
+        /// <param name="force">When true, reinstall the packages even if it is already up-to-date.</param>
+        /// <param name="runInBackground">
+        /// Indicates that no command windows will be visible and the process will automatically
+        /// terminate when complete. When true, the command window must be manually closed before
+        /// processing will continue.
+        /// </param>
+        public static void PipInstallModule(string module_name, bool force = false, bool runInBackground = false)
         {
             if (!IsPipInstalled())
-                try { InstallPip(); } catch { throw new FileNotFoundException("pip is not installed"); }
+                try { InstallPip(runInBackground); } catch { throw new FileNotFoundException("pip is not installed"); }
 
             if (IsModuleInstalled(module_name) && !force)
                 return;
 
             string pipPath = Path.Combine(EmbeddedPythonHome, "Scripts", "pip");
             string forceInstall = force ? " --force-reinstall" : "";
-            RunCommand($"{pipPath} install {module_name}{forceInstall}");
+            RunCommand($"{pipPath} install {module_name}{forceInstall}", runInBackground);
         }
 
-        public static void InstallPip()
+        /// <summary>
+        /// Download and install pip.
+        /// </summary>
+        /// <remarks>
+        /// Creates the lib folder under <see cref="EmbeddedPythonHome"/> if it does not exist.
+        /// </remarks>
+        /// <param name="runInBackground">
+        /// Indicates that no command windows will be visible and the process will automatically
+        /// terminate when complete. When true, the command window must be manually closed before
+        /// processing will continue.
+        /// </param>
+        public static void InstallPip(bool runInBackground = false)
         {
             string libDir = Path.Combine(EmbeddedPythonHome, "Lib");
-            RunCommand($"cd {libDir} && curl https://bootstrap.pypa.io/get-pip.py -o get-pip.py");
-            RunCommand($"cd {EmbeddedPythonHome} && python.exe Lib\\get-pip.py");
+
+            if (!Directory.Exists(libDir))
+                Directory.CreateDirectory(libDir);
+
+            RunCommand($"cd {libDir} && curl https://bootstrap.pypa.io/get-pip.py -o get-pip.py", runInBackground);
+            RunCommand($"cd {EmbeddedPythonHome} && python.exe Lib\\get-pip.py", runInBackground);
         }
 
         public static bool IsPythonInstalled()
@@ -196,8 +221,10 @@ namespace Python.Included
         {
             System.Diagnostics.Process process = new System.Diagnostics.Process();
             System.Diagnostics.ProcessStartInfo startInfo = new System.Diagnostics.ProcessStartInfo();
+
             if (runInBackground)
                 startInfo.WindowStyle = System.Diagnostics.ProcessWindowStyle.Hidden;
+
             startInfo.FileName = "cmd.exe";
             string commandMode = runInBackground ? "/C" : "/K";
             if (RuntimeInformation.IsOSPlatform(OSPlatform.Linux))
@@ -205,6 +232,7 @@ namespace Python.Included
                 startInfo.FileName = "/bin/bash";
                 commandMode = "-c";
             }
+
             startInfo.Arguments = $"{commandMode} {command}";
             process.StartInfo = startInfo;
             process.Start();
