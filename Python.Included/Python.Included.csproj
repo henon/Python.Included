@@ -1,7 +1,8 @@
-<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFramework>netstandard2.0</TargetFramework>
+    <TargetFramework>net462</TargetFramework>
+    <AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
     <Version>3.7.3.2</Version>
     <Authors>Meinrad Recheis and Python Software Foundation</Authors>
@@ -14,6 +15,16 @@
     <PackageIconUrl>https://github.com/henon/Python.Included/blob/master/art/python_included_nuget.png</PackageIconUrl>
     <AssemblyVersion>3.7.3.2</AssemblyVersion>
     <FileVersion>3.7.3.2</FileVersion>
+    <AutoGenerateBindingRedirects>false</AutoGenerateBindingRedirects>
+    <RootNamespace>Python.Included</RootNamespace>
+    <AssemblyName>Python.Included</AssemblyName>
+    <Company>bhom.xyz</Company>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
+    <DebugType>full</DebugType>
+    <DebugSymbols>true</DebugSymbols>
+    <OutputPath>..\Build</OutputPath>
   </PropertyGroup>
 
   <ItemGroup>
@@ -25,7 +36,64 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="Python.Runtime.NETStandard" Version="3.7.0" />
+    <Reference Include="Python.Runtime">
+      <HintPath>..\..\pythonnet_netstandard\Build\Python.Runtime.dll</HintPath>
+      <Private>false</Private>
+    </Reference>
+  </ItemGroup>
+
+  <ItemGroup>
+    <Reference Update="System">
+      <Private>false</Private>
+    </Reference>
+  </ItemGroup>
+
+  <ItemGroup>
+    <Reference Update="System.Core">
+      <Private>false</Private>
+    </Reference>
+  </ItemGroup>
+
+  <ItemGroup>
+    <Reference Update="System.Data">
+      <Private>false</Private>
+    </Reference>
+  </ItemGroup>
+
+  <ItemGroup>
+    <Reference Update="System.Drawing">
+      <Private>false</Private>
+    </Reference>
+  </ItemGroup>
+
+  <ItemGroup>
+    <Reference Update="System.IO.Compression.FileSystem">
+      <Private>false</Private>
+    </Reference>
+  </ItemGroup>
+
+  <ItemGroup>
+    <Reference Update="System.Numerics">
+      <Private>false</Private>
+    </Reference>
+  </ItemGroup>
+
+  <ItemGroup>
+    <Reference Update="System.Runtime.Serialization">
+      <Private>false</Private>
+    </Reference>
+  </ItemGroup>
+
+  <ItemGroup>
+    <Reference Update="System.Xml">
+      <Private>false</Private>
+    </Reference>
+  </ItemGroup>
+
+  <ItemGroup>
+    <Reference Update="System.Xml.Linq">
+      <Private>false</Private>
+    </Reference>
   </ItemGroup>
 
 </Project>

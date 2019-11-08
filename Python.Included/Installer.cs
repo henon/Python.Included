@@ -11,7 +11,12 @@ namespace Python.Included
 {
     public static class Installer
     {
+        /***************************************************/
+        /**** Public Properties                         ****/
+        /***************************************************/
+
         public const string EMBEDDED_PYTHON = "python-3.7.3-embed-amd64";
+
         public const string PYTHON_VERSION = "python37";
 
         public static string EmbeddedPythonHome
@@ -23,6 +28,10 @@ namespace Python.Included
                 return install_dir;
             }
         }
+
+        /***************************************************/
+        /**** Public Methods                            ****/
+        /***************************************************/
 
         public static async Task SetupPython(bool force = false)
         {
@@ -43,39 +52,25 @@ namespace Python.Included
                 try
                 {
                     ZipFile.ExtractToDirectory(zip, zip.Replace(".zip", ""));
-                    
+
                     // allow pip on embedded python installation
                     // see https://github.com/pypa/pip/issues/4207#issuecomment-281236055
                     var pth = Path.Combine(EmbeddedPythonHome, PYTHON_VERSION + "._pth");
                     string lines = File.ReadAllText(pth);
                     lines = lines.Replace("#import site", "import site");
                 }
-                catch (Exception e)
-                {
-                    // todo log
-                }
+                catch { }
             });
         }
 
-        private static void CopyEmbeddedResourceToFile(Assembly assembly, string resourceName, string filePath, bool force = false)
-        {
-            if (force || !File.Exists(filePath))
-            {
-                var key = GetResourceKey(assembly, resourceName);
-                using (Stream stream = assembly.GetManifestResourceStream(key))
-                using (var file = new FileStream(filePath, FileMode.Create))
-                {
-                    if (stream == null)
-                        throw new ArgumentException($"Resource name '{resourceName}' not found!");
-                    stream.CopyTo(file);
-                }
-            }
-        }
+        /***************************************************/
 
         public static string GetResourceKey(Assembly assembly, string embedded_file)
         {
             return assembly.GetManifestResourceNames().FirstOrDefault(x => x.Contains(embedded_file));
         }
+
+        /***************************************************/
 
         /// <summary>
         /// Install a python library (.whl file) in the embedded python installation of Python.Included
@@ -89,15 +84,19 @@ namespace Python.Included
             var key = GetResourceKey(assembly, resource_name);
             if (string.IsNullOrWhiteSpace(key))
                 throw new ArgumentException($"The resource '{resource_name}' was not found in assembly '{assembly.FullName}'");
+
             var module_name = resource_name.Split('-').FirstOrDefault();
             if (string.IsNullOrWhiteSpace(module_name))
                 throw new ArgumentException($"The resource name '{resource_name}' did not contain a valid module name");
+
             var lib = Path.Combine(EmbeddedPythonHome, "Lib");
             if (!Directory.Exists(lib))
                 Directory.CreateDirectory(lib);
+
             var module_path = Path.Combine(lib, module_name);
             if (!force && Directory.Exists(module_path))
                 return;
+
             var wheelPath = Path.Combine(lib, key);
             await Task.Run(() =>
             {
@@ -106,10 +105,8 @@ namespace Python.Included
                 {
                     ZipFile.ExtractToDirectory(wheelPath, lib);
                 }
-                catch (Exception e)
-                {
-                    // todo
-                }
+                catch { }
+
                 // modify _pth file
                 var pth = Path.Combine(EmbeddedPythonHome, PYTHON_VERSION + "._pth");
                 if (!File.ReadAllLines(pth).Contains("./Lib"))
@@ -129,39 +126,44 @@ namespace Python.Included
             string key = GetResourceKey(assembly, resource_name);
             if (string.IsNullOrWhiteSpace(key))
                 throw new ArgumentException($"The resource '{resource_name}' was not found in assembly '{assembly.FullName}'");
+
             string module_name = resource_name.Split('-').FirstOrDefault();
             if (string.IsNullOrWhiteSpace(module_name))
                 throw new ArgumentException($"The resource name '{resource_name}' did not contain a valid module name");
+
             string libDir = Path.Combine(EmbeddedPythonHome, "Lib");
             if (!Directory.Exists(libDir))
                 Directory.CreateDirectory(libDir);
+
             string module_path = Path.Combine(libDir, module_name);
             if (!force && Directory.Exists(module_path))
                 return;
 
             string wheelPath = Path.Combine(libDir, key);
-            string pipPath = Path.Combine(EmbeddedPythonHome, "Scripts", "pip");
+            string pipPath = Path.Combine(EmbeddedPythonHome, "Scripts", "pip3");
 
             CopyEmbeddedResourceToFile(assembly, key, wheelPath, force);
 
-            if (!IsPipInstalled())
-                try { InstallPip(); } catch { throw new FileNotFoundException("pip is not installed"); }
+            TryInstallPip();
 
             RunCommand($"{pipPath} install {wheelPath}");
         }
 
+        /***************************************************/
+
         public static void PipInstallModule(string module_name, bool force = false)
         {
-            if (!IsPipInstalled())
-                try { InstallPip(); } catch { throw new FileNotFoundException("pip is not installed"); }
+            TryInstallPip();
 
             if (IsModuleInstalled(module_name) && !force)
                 return;
 
-            string pipPath = Path.Combine(EmbeddedPythonHome, "Scripts", "pip");
+            string pipPath = Path.Combine(EmbeddedPythonHome, "Scripts", "pip3");
             string forceInstall = force ? " --force-reinstall" : "";
             RunCommand($"{pipPath} install {module_name}{forceInstall}");
         }
+
+        /***************************************************/
 
         public static void InstallPip()
         {
@@ -170,25 +172,52 @@ namespace Python.Included
             RunCommand($"cd {EmbeddedPythonHome} && python.exe Lib\\get-pip.py");
         }
 
+        /***************************************************/
+
+        public static bool TryInstallPip()
+        {
+            if (!IsPipInstalled())
+            {
+                try
+                {
+                    InstallPip();
+                    return true;
+                }
+                catch
+                {
+                    throw new FileNotFoundException("pip is not installed");
+                }
+            }
+            return false;
+        }
+
+        /***************************************************/
+
         public static bool IsPythonInstalled()
         {
             return File.Exists(Path.Combine(EmbeddedPythonHome, "python.exe"));
 
         }
 
+        /***************************************************/
+
         public static bool IsPipInstalled()
         {
             return File.Exists(Path.Combine(EmbeddedPythonHome, "Scripts", "pip.exe"));
         }
+
+        /***************************************************/
 
         public static bool IsModuleInstalled(string module)
         {
             if (!IsPythonInstalled())
                 return false;
 
-            string moduleDir = Path.Combine(EmbeddedPythonHome, "Lib", module);
+            string moduleDir = Path.Combine(EmbeddedPythonHome, "Lib", "site-packages", module);
             return Directory.Exists(moduleDir) && File.Exists(Path.Combine(moduleDir, "__init__.py"));
         }
+
+        /***************************************************/
 
         public static void RunCommand(string command, bool runInBackground = false)
         {
@@ -198,15 +227,34 @@ namespace Python.Included
                 startInfo.WindowStyle = System.Diagnostics.ProcessWindowStyle.Hidden;
             startInfo.FileName = "cmd.exe";
             string commandMode = runInBackground ? "/C" : "/K";
-            if (RuntimeInformation.IsOSPlatform(OSPlatform.Linux))
-            {
-                startInfo.FileName = "/bin/bash";
-                commandMode = "-c";
-            }
+            commandMode = "";
+            startInfo.WorkingDirectory = EmbeddedPythonHome;
             startInfo.Arguments = $"{commandMode} {command}";
             process.StartInfo = startInfo;
             process.Start();
             process.WaitForExit();
         }
+
+
+        /***************************************************/
+        /**** Private Methods                           ****/
+        /***************************************************/
+
+        private static void CopyEmbeddedResourceToFile(Assembly assembly, string resourceName, string filePath, bool force = false)
+        {
+            if (force || !File.Exists(filePath))
+            {
+                var key = GetResourceKey(assembly, resourceName);
+                using (Stream stream = assembly.GetManifestResourceStream(key))
+                using (var file = new FileStream(filePath, FileMode.Create))
+                {
+                    if (stream == null)
+                        throw new ArgumentException($"Resource name '{resourceName}' not found!");
+                    stream.CopyTo(file);
+                }
+            }
+        }
+
+        /***************************************************/
     }
 }
