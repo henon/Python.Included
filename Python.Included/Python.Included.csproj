@@ -1,24 +1,26 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFramework>net462</TargetFramework>
+    <TargetFramework>netstandard2.0</TargetFramework>
     <AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
     <Version>3.7.3.2</Version>
-    <Authors>Meinrad Recheis and Python Software Foundation</Authors>
+    <Authors>Eduardo Pignatelli</Authors>
     <Description>Python.Included is an automatic deployment mechanism for .NET packages which depend on the embedded Python distribution. This allows libraries depending on Python and/or Python packages to be deployed via Nuget without having to worry about any local Python installations.</Description>
     <PackageLicenseUrl>https://docs.python.org/3/license.html</PackageLicenseUrl>
-    <PackageProjectUrl>https://github.com/henon/Python.Included</PackageProjectUrl>
-    <RepositoryUrl>https://github.com/henon/Python.Included</RepositoryUrl>
+    <PackageProjectUrl>https://github.com/epignatelli/python.included</PackageProjectUrl>
+    <RepositoryUrl>https://github.com/epignatelli/python.included</RepositoryUrl>
     <RepositoryType>github</RepositoryType>
     <PackageTags>Python, pythonnet, embedded Python</PackageTags>
-    <PackageIconUrl>https://github.com/henon/Python.Included/blob/master/art/python_included_nuget.png</PackageIconUrl>
+    <PackageIconUrl></PackageIconUrl>
     <AssemblyVersion>3.7.3.2</AssemblyVersion>
     <FileVersion>3.7.3.2</FileVersion>
     <AutoGenerateBindingRedirects>false</AutoGenerateBindingRedirects>
     <RootNamespace>Python.Included</RootNamespace>
     <AssemblyName>Python.Included</AssemblyName>
     <Company>bhom.xyz</Company>
+    <PackageId>BH.UI.Python.Included</PackageId>
+    <PackageRequireLicenseAcceptance>true</PackageRequireLicenseAcceptance>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
@@ -36,10 +38,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Reference Include="Python.Runtime">
-      <HintPath>..\..\pythonnet_netstandard\Build\Python.Runtime.dll</HintPath>
-      <Private>false</Private>
-    </Reference>
+    <PackageReference Include="BH.UI.Python.Runtime" Version="3.7.2-alpha" />
   </ItemGroup>
 
   <ItemGroup>
