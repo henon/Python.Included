@@ -56,8 +56,9 @@ namespace Python.Included
                     // allow pip on embedded python installation
                     // see https://github.com/pypa/pip/issues/4207#issuecomment-281236055
                     var pth = Path.Combine(EmbeddedPythonHome, PYTHON_VERSION + "._pth");
-                    string lines = File.ReadAllText(pth);
-                    lines = lines.Replace("#import site", "import site");
+                    //string lines = File.ReadAllText(pth);
+                    //lines = lines.Replace("#import site", "import site");
+                    File.Delete(pth);
                 }
                 catch { }
             });
@@ -168,6 +169,9 @@ namespace Python.Included
         public static void InstallPip()
         {
             string libDir = Path.Combine(EmbeddedPythonHome, "Lib");
+            if (!Directory.Exists(libDir))
+                Directory.CreateDirectory(libDir);
+
             RunCommand($"cd {libDir} && curl https://bootstrap.pypa.io/get-pip.py -o get-pip.py");
             RunCommand($"cd {EmbeddedPythonHome} && python.exe Lib\\get-pip.py");
         }
@@ -219,7 +223,7 @@ namespace Python.Included
 
         /***************************************************/
 
-        public static void RunCommand(string command, bool runInBackground = false)
+        public static void RunCommand(string command, bool runInBackground = true)
         {
             System.Diagnostics.Process process = new System.Diagnostics.Process();
             System.Diagnostics.ProcessStartInfo startInfo = new System.Diagnostics.ProcessStartInfo();
@@ -227,7 +231,6 @@ namespace Python.Included
                 startInfo.WindowStyle = System.Diagnostics.ProcessWindowStyle.Hidden;
             startInfo.FileName = "cmd.exe";
             string commandMode = runInBackground ? "/C" : "/K";
-            commandMode = "";
             startInfo.WorkingDirectory = EmbeddedPythonHome;
             startInfo.Arguments = $"{commandMode} {command}";
             process.StartInfo = startInfo;
