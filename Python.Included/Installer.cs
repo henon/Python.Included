@@ -56,8 +56,6 @@ namespace Python.Included
                     // allow pip on embedded python installation
                     // see https://github.com/pypa/pip/issues/4207#issuecomment-281236055
                     var pth = Path.Combine(EmbeddedPythonHome, PYTHON_VERSION + "._pth");
-                    //string lines = File.ReadAllText(pth);
-                    //lines = lines.Replace("#import site", "import site");
                     File.Delete(pth);
                 }
                 catch { }
