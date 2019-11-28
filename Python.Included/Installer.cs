@@ -152,7 +152,7 @@ namespace Python.Included
 
         /***************************************************/
 
-        public static void PipInstallModule(string module_name, bool force = false)
+        public static void PipInstallModule(string module_name, string version = "", bool force = false)
         {
             TryInstallPip();
 
@@ -160,8 +160,11 @@ namespace Python.Included
                 return;
 
             string pipPath = Path.Combine(EmbeddedPythonHome, "Scripts", "pip3");
-            string forceInstall = force ? " --force-reinstall" : "";
-            RunCommand($"{pipPath} install {module_name}{forceInstall}");
+            string forceInstall = force ? "--force-reinstall" : "";
+            if (version.Length > 0)
+                version = $"=={version}";
+
+            RunCommand($"{pipPath} install {module_name}{version} {forceInstall}");
         }
 
         /***************************************************/
