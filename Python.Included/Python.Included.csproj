@@ -4,7 +4,7 @@
     <TargetFramework>netstandard2.0</TargetFramework>
     <AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
-    <Version>3.7.3.6-alpha</Version>
+    <Version>3.7.3.9-alpha</Version>
     <Authors>Eduardo Pignatelli</Authors>
     <Description>Python.Included is an automatic deployment mechanism for .NET packages which depend on the embedded Python distribution. This allows libraries depending on Python and/or Python packages to be deployed via Nuget without having to worry about any local Python installations.</Description>
     <PackageLicenseUrl>https://docs.python.org/3/license.html</PackageLicenseUrl>
@@ -13,8 +13,8 @@
     <RepositoryType>github</RepositoryType>
     <PackageTags>Python, pythonnet, embedded Python</PackageTags>
     <PackageIconUrl></PackageIconUrl>
-    <AssemblyVersion>3.7.3.2</AssemblyVersion>
-    <FileVersion>3.7.3.2</FileVersion>
+    <AssemblyVersion>3.7.9.2</AssemblyVersion>
+    <FileVersion>3.7.9.2</FileVersion>
     <AutoGenerateBindingRedirects>false</AutoGenerateBindingRedirects>
     <RootNamespace>Python.Included</RootNamespace>
     <AssemblyName>Python.Included</AssemblyName>
@@ -38,7 +38,10 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="BH.UI.Python.Runtime" Version="3.7.2-alpha" />
+    <Reference Include="Python.Runtime">
+      <HintPath>..\..\pythonnet_netstandard\Build\Python.Runtime.dll</HintPath>
+      <Private>true</Private>
+    </Reference>
   </ItemGroup>
 
   <ItemGroup>
