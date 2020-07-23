@@ -1,12 +1,15 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio 15
-#
-VisualStudioVersion = 15.0.28307.645
+# Visual Studio Version 16
+VisualStudioVersion = 16.0.30204.135
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Python.Included", "Python.Included\Python.Included.csproj", "{65F55967-87AA-4653-8907-D906B572CD85}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ReleaseBot", "ReleaseBot\ReleaseBot.csproj", "{2BAEA60C-88A2-45DC-8044-2C9571E1B8CF}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NetCoreExample", "examples\NetCoreExample\NetCoreExample.csproj", "{C539164C-7A4E-49A3-95CA-8255B3A2BF2A}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Examples", "Examples", "{97B6562A-22CB-4D58-942E-FF5ADC195499}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -22,9 +25,16 @@ Global
 		{2BAEA60C-88A2-45DC-8044-2C9571E1B8CF}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{2BAEA60C-88A2-45DC-8044-2C9571E1B8CF}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{2BAEA60C-88A2-45DC-8044-2C9571E1B8CF}.Release|Any CPU.Build.0 = Release|Any CPU
+		{C539164C-7A4E-49A3-95CA-8255B3A2BF2A}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{C539164C-7A4E-49A3-95CA-8255B3A2BF2A}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{C539164C-7A4E-49A3-95CA-8255B3A2BF2A}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{C539164C-7A4E-49A3-95CA-8255B3A2BF2A}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{C539164C-7A4E-49A3-95CA-8255B3A2BF2A} = {97B6562A-22CB-4D58-942E-FF5ADC195499}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {1AD41278-71D6-4DE3-A5A9-D18A2067B168}
