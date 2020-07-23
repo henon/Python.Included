@@ -10,7 +10,7 @@ Note: Python.Included only implements deployment on top of [pythonnet_netstandar
 
 ### Getting Started
 
-Just reference Python.Included via NuGet and you are ready to interop with [Python.NET](http://pythonnet.github.io/). It is completely irrelevant wether or not you have any local Python installations of any kind.
+Just reference Python.Included via NuGet, call `await Installer.SetupPython();` and you are ready to interop with [Python.NET](http://pythonnet.github.io/). It is completely irrelevant wether or not you have any local Python installations of any kind.
 
 This short example initializes Python.Included and prints the version of the included Python installation by calling Python's `sys.version`:
 ```c#
