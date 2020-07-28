@@ -39,11 +39,23 @@ Output:
 Python version: 3.7.3 (v3.7.3:ef4ec6ed12, Mar 25 2019, 22:22:05) [MSC v.1916 64 bit (AMD64)]
 ```
 
-For advanced usage (i.e. bundling and installing Python libraries) please check out the source code of [Numpy.NET](https://github.com/SciSharp/Numpy.NET).
+### Installing Python libraries (*.whl files) from embedded resources
+An example of this usage is [Numpy.NET](https://github.com/SciSharp/Numpy.NET) which in `np.module.gen.cs` installs the numpy binary which it includes as embedded resource:
+
+```c#
+await Installer.SetupPython(force)
+await Installer.InstallWheel(typeof(np).Assembly, "numpy-1.16.3-cp37-cp37m-win_amd64.whl")
+PythonEngine.Initialize();
+var numpy = Py.Import("numpy");
+```
+
+### Installing Python libraries with pip
+
+TODO: Backport the pip3 installation routines from epignatelli's fork and document here
 
 ### Project Status
 
-The project tasks are completed and the code is stable. 
+The code is stable for Windows. For testing on other platforms help is wanted.
 
 ### Projects using Python.Included
 * [Numpy.NET](https://github.com/SciSharp/Numpy.NET)
