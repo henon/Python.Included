@@ -49,6 +49,10 @@ PythonEngine.Initialize();
 var numpy = Py.Import("numpy");
 ```
 
+`Installer.InstallWheel(Assembly assembly, string resource_name)` loads the wheel from the given assembly and installs it into the embedded python installation. 
+
+NOTE: Make sure the wheel file is compatible to the version of Python which Python.Included installs (v3.7.3 x64).
+
 ### Installing Python libraries with pip
 
 TODO: Backport the pip3 installation routines from epignatelli's fork and document here
