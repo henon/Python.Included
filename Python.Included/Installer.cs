@@ -1,4 +1,5 @@
 using System;
+using System.Diagnostics;
 using System.IO;
 using System.IO.Compression;
 using System.Linq;
@@ -257,10 +258,12 @@ namespace Python.Included
         /// </param>
         public static void RunCommand(string command, bool runInBackground = true)
         {
+            System.Diagnostics.Process process = new System.Diagnostics.Process();
+            ProcessStartInfo startInfo = new System.Diagnostics.ProcessStartInfo();
             if (RuntimeInformation.IsOSPlatform(OSPlatform.Linux))
             {
-                System.Diagnostics.Process process = new System.Diagnostics.Process();
-                process.StartInfo = new System.Diagnostics.ProcessStartInfo()
+                // Unix/Linux/macOS specific command execution
+                startInfo = new System.Diagnostics.ProcessStartInfo()
                 {
                     WindowStyle = System.Diagnostics.ProcessWindowStyle.Hidden,
                     FileName = "/bin/bash",
@@ -272,23 +275,20 @@ namespace Python.Included
                     UseShellExecute = !runInBackground,
                     CreateNoWindow = true,
                 };
-                process.Start();
-                process.WaitForExit();
             }
             else
             {
-                System.Diagnostics.Process process = new System.Diagnostics.Process();
-                System.Diagnostics.ProcessStartInfo startInfo = new System.Diagnostics.ProcessStartInfo();
+                // Windows specific command execution
                 if (runInBackground)
                     startInfo.WindowStyle = System.Diagnostics.ProcessWindowStyle.Hidden;
                 startInfo.FileName = "cmd.exe";
                 string commandMode = runInBackground ? "/C" : "/K";
                 startInfo.WorkingDirectory = EmbeddedPythonHome;
                 startInfo.Arguments = $"{commandMode} {command}";
-                process.StartInfo = startInfo;
-                process.Start();
-                process.WaitForExit();
             }
+            process.StartInfo = startInfo;
+            process.Start();
+            process.WaitForExit();
         }
     }
 }
