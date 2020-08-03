@@ -51,11 +51,22 @@ var numpy = Py.Import("numpy");
 
 `Installer.InstallWheel(Assembly assembly, string resource_name)` loads the wheel from the given assembly and installs it into the embedded python installation. 
 
-NOTE: Make sure the wheel file is compatible to the version of Python which Python.Included installs (v3.7.3 x64).
+NOTE: Make sure the wheel file is compatible to the version of Python which Python.Included installs (v3.7.3 x64). Also, while it works fine with numpy, not every python package can easily be embedded due to its size. Some might require extra installation routines which are not supported by `InstallWheel`. In that case, use pip to download and install such packages as described below.
 
 ### Installing Python libraries with pip
 
-TODO: Backport the pip3 installation routines from epignatelli's fork and document here
+You can install a current version of `pip3` and use that to install any python package:
+
+```c#
+await Installer.SetupPython();
+Installer.TryInstallPip();
+Installer.PipInstallModule("spacy");
+PythonEngine.Initialize();
+dynamic spacy = Py.Import("spacy");
+Console.WriteLine("Spacy version: " + spacy.__version__);
+```
+
+Check out the example project `TestPipInstallation` to try it out.
 
 ### Project Status
 
