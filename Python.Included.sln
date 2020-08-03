@@ -1,15 +1,16 @@
-﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 16
-VisualStudioVersion = 16.0.30204.135
+VisualStudioVersion = 16.0.30309.148
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Python.Included", "Python.Included\Python.Included.csproj", "{65F55967-87AA-4653-8907-D906B572CD85}"
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Examples", "Examples", "{7B4C443D-A615-4717-83B0-036B98B3E6B0}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "NetCoreExample", "examples\NetCoreExample\NetCoreExample.csproj", "{B55132B3-2808-4656-9488-3B381A19ECE8}"
+EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ReleaseBot", "ReleaseBot\ReleaseBot.csproj", "{2BAEA60C-88A2-45DC-8044-2C9571E1B8CF}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NetCoreExample", "examples\NetCoreExample\NetCoreExample.csproj", "{C539164C-7A4E-49A3-95CA-8255B3A2BF2A}"
-EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Examples", "Examples", "{97B6562A-22CB-4D58-942E-FF5ADC195499}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TestPipInstallation", "TestPipInstallation\TestPipInstallation.csproj", "{4C92618B-BC6A-4AFA-9F49-3808D975D0DD}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -21,20 +22,26 @@ Global
 		{65F55967-87AA-4653-8907-D906B572CD85}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{65F55967-87AA-4653-8907-D906B572CD85}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{65F55967-87AA-4653-8907-D906B572CD85}.Release|Any CPU.Build.0 = Release|Any CPU
+		{B55132B3-2808-4656-9488-3B381A19ECE8}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{B55132B3-2808-4656-9488-3B381A19ECE8}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{B55132B3-2808-4656-9488-3B381A19ECE8}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{B55132B3-2808-4656-9488-3B381A19ECE8}.Release|Any CPU.Build.0 = Release|Any CPU
 		{2BAEA60C-88A2-45DC-8044-2C9571E1B8CF}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{2BAEA60C-88A2-45DC-8044-2C9571E1B8CF}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{2BAEA60C-88A2-45DC-8044-2C9571E1B8CF}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{2BAEA60C-88A2-45DC-8044-2C9571E1B8CF}.Release|Any CPU.Build.0 = Release|Any CPU
-		{C539164C-7A4E-49A3-95CA-8255B3A2BF2A}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{C539164C-7A4E-49A3-95CA-8255B3A2BF2A}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{C539164C-7A4E-49A3-95CA-8255B3A2BF2A}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{C539164C-7A4E-49A3-95CA-8255B3A2BF2A}.Release|Any CPU.Build.0 = Release|Any CPU
+		{4C92618B-BC6A-4AFA-9F49-3808D975D0DD}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{4C92618B-BC6A-4AFA-9F49-3808D975D0DD}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{4C92618B-BC6A-4AFA-9F49-3808D975D0DD}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{4C92618B-BC6A-4AFA-9F49-3808D975D0DD}.Release|Any CPU.Build.0 = Release|Any CPU
+
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
 	EndGlobalSection
 	GlobalSection(NestedProjects) = preSolution
-		{C539164C-7A4E-49A3-95CA-8255B3A2BF2A} = {97B6562A-22CB-4D58-942E-FF5ADC195499}
+		{B55132B3-2808-4656-9488-3B381A19ECE8} = {7B4C443D-A615-4717-83B0-036B98B3E6B0}
+		{4C92618B-BC6A-4AFA-9F49-3808D975D0DD} = {7B4C443D-A615-4717-83B0-036B98B3E6B0}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {1AD41278-71D6-4DE3-A5A9-D18A2067B168}

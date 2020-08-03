@@ -58,8 +58,6 @@ namespace Python.Included
                     // allow pip on embedded python installation
                     // see https://github.com/pypa/pip/issues/4207#issuecomment-281236055
                     var pth = Path.Combine(EmbeddedPythonHome, PYTHON_VERSION + "._pth");
-                    //string lines = File.ReadAllText(pth);
-                    //lines = lines.Replace("#import site", "import site");
                     File.Delete(pth);
                 }
                 catch (Exception e)
@@ -85,6 +83,7 @@ namespace Python.Included
         /// <param name="resource_name">Name of the embedded wheel file i.e. "numpy-1.16.3-cp37-cp37m-win_amd64.whl"</param>
         /// <param name="force"></param>
         /// <returns></returns>
+        [Obsolete("Installing python packages using a custom wheel may result in an invalid python environment. Try using pip by calling Installer.PipInstallModule.")]
         public static async Task InstallWheel(Assembly assembly, string resource_name, bool force = false)
         {
             var key = GetResourceKey(assembly, resource_name);
