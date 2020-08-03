@@ -1,9 +1,13 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio 15
-VisualStudioVersion = 15.0.28307.645
+# Visual Studio Version 16
+VisualStudioVersion = 16.0.30309.148
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Python.Included", "Python.Included\Python.Included.csproj", "{65F55967-87AA-4653-8907-D906B572CD85}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Examples", "Examples", "{7B4C443D-A615-4717-83B0-036B98B3E6B0}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TestPythonIncluded", "..\..\..\Documents\Python.Included2\TestPythonIncluded\TestPythonIncluded.csproj", "{6B6A2A76-2E4F-4460-B8AE-6CE1FE7BD3E7}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -15,9 +19,16 @@ Global
 		{65F55967-87AA-4653-8907-D906B572CD85}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{65F55967-87AA-4653-8907-D906B572CD85}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{65F55967-87AA-4653-8907-D906B572CD85}.Release|Any CPU.Build.0 = Release|Any CPU
+		{6B6A2A76-2E4F-4460-B8AE-6CE1FE7BD3E7}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{6B6A2A76-2E4F-4460-B8AE-6CE1FE7BD3E7}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{6B6A2A76-2E4F-4460-B8AE-6CE1FE7BD3E7}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{6B6A2A76-2E4F-4460-B8AE-6CE1FE7BD3E7}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{6B6A2A76-2E4F-4460-B8AE-6CE1FE7BD3E7} = {7B4C443D-A615-4717-83B0-036B98B3E6B0}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {1AD41278-71D6-4DE3-A5A9-D18A2067B168}
