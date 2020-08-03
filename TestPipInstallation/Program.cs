@@ -21,13 +21,14 @@ namespace TestPipInstallation
                 PythonEngine.Initialize();
                 Installer.PipInstallModule("spacy");
                 dynamic spacy = Py.Import("spacy");
-                Console.WriteLine("Spacy version", spacy.version);
+                Console.WriteLine("Spacy version: " + spacy.__version__);
             }
             else
             {
                 Console.WriteLine("Error installing Pip");
             }
 
+            Console.ReadKey();
         }
     }
 }
