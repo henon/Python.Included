@@ -11,12 +11,7 @@ namespace Python.Included
 {
     public static class Installer
     {
-        /***************************************************/
-        /**** Public Properties                         ****/
-        /***************************************************/
-
         public const string EMBEDDED_PYTHON = "python-3.7.3-embed-amd64";
-
         public const string PYTHON_VERSION = "python37";
         /// <summary>
         /// Path to install python. If needed set it before calling SetupPython().
@@ -31,10 +26,6 @@ namespace Python.Included
                 return install_dir;
             }
         }
-
-        /***************************************************/
-        /**** Public Methods                            ****/
-        /***************************************************/
 
         public static async Task SetupPython(bool force = false)
         {
@@ -67,7 +58,20 @@ namespace Python.Included
             });
         }
 
-        /***************************************************/
+        private static void CopyEmbeddedResourceToFile(Assembly assembly, string resourceName, string filePath, bool force = false)
+        {
+            if (force || !File.Exists(filePath))
+            {
+                var key = GetResourceKey(assembly, resourceName);
+                using (Stream stream = assembly.GetManifestResourceStream(key))
+                using (var file = new FileStream(filePath, FileMode.Create))
+                {
+                    if (stream == null)
+                        throw new ArgumentException($"Resource name '{resourceName}' not found!");
+                    stream.CopyTo(file);
+                }
+            }
+        }
 
         public static string GetResourceKey(Assembly assembly, string embedded_file)
         {
@@ -116,7 +120,6 @@ namespace Python.Included
                 {
                     Console.WriteLine("Error extracting zip file: " + wheelPath);
                 }
-
                 // modify _pth file
                 var pth = Path.Combine(EmbeddedPythonHome, PYTHON_VERSION + "._pth");
                 if (!File.ReadAllLines(pth).Contains("./Lib"))
@@ -139,15 +142,12 @@ namespace Python.Included
             string key = GetResourceKey(assembly, resource_name);
             if (string.IsNullOrWhiteSpace(key))
                 throw new ArgumentException($"The resource '{resource_name}' was not found in assembly '{assembly.FullName}'");
-
             string module_name = resource_name.Split('-').FirstOrDefault();
             if (string.IsNullOrWhiteSpace(module_name))
                 throw new ArgumentException($"The resource name '{resource_name}' did not contain a valid module name");
-
             string libDir = Path.Combine(EmbeddedPythonHome, "Lib");
             if (!Directory.Exists(libDir))
                 Directory.CreateDirectory(libDir);
-
             string module_path = Path.Combine(libDir, module_name);
             if (!force && Directory.Exists(module_path))
                 return;
@@ -162,36 +162,52 @@ namespace Python.Included
             RunCommand($"{pipPath} install {wheelPath}");
         }
 
-        /***************************************************/
-
-        public static void PipInstallModule(string module_name, string version = "", bool force = false)
+        /// <summary>
+        /// Uses pip to find and install the specified package.
+        /// </summary>
+        /// <param name="module_name">The module/package to install </param>
+        /// <param name="force">When true, reinstall the packages even if it is already up-to-date.</param>
+        /// <param name="runInBackground">
+        /// Indicates that no command windows will be visible and the process will automatically
+        /// terminate when complete. When true, the command window must be manually closed before
+        /// processing will continue.
+        /// </param>
+        public static void PipInstallModule(string module_name, string version = "", bool force = false, bool runInBackground = true)
         {
             TryInstallPip();
 
             if (IsModuleInstalled(module_name) && !force)
                 return;
 
-            string pipPath = Path.Combine(EmbeddedPythonHome, "Scripts", "pip3");
-            string forceInstall = force ? "--force-reinstall" : "";
+            string pipPath = Path.Combine(EmbeddedPythonHome, "Scripts", "pip");
+            string forceInstall = force ? " --force-reinstall" : "";
             if (version.Length > 0)
                 version = $"=={version}";
-
-            RunCommand($"{pipPath} install {module_name}{version} {forceInstall}");
+            
+            RunCommand($"{pipPath} install {module_name}{version} {forceInstall}", runInBackground);
         }
 
-        /***************************************************/
-
-        public static void InstallPip()
+		/// <summary>
+        /// Download and install pip.
+        /// </summary>
+        /// <remarks>
+        /// Creates the lib folder under <see cref="EmbeddedPythonHome"/> if it does not exist.
+        /// </remarks>
+        /// <param name="runInBackground">
+        /// Indicates that no command windows will be visible and the process will automatically
+        /// terminate when complete. When true, the command window must be manually closed before
+        /// processing will continue.
+        /// </param>
+        public static void InstallPip(bool runInBackground = true)
         {
             string libDir = Path.Combine(EmbeddedPythonHome, "Lib");
+
             if (!Directory.Exists(libDir))
                 Directory.CreateDirectory(libDir);
 
-            RunCommand($"cd {libDir} && curl https://bootstrap.pypa.io/get-pip.py -o get-pip.py");
-            RunCommand($"cd {EmbeddedPythonHome} && python.exe Lib\\get-pip.py");
+            RunCommand($"cd {libDir} && curl https://bootstrap.pypa.io/get-pip.py -o get-pip.py", runInBackground);
+            RunCommand($"cd {EmbeddedPythonHome} && python.exe Lib\\get-pip.py", runInBackground);
         }
-
-        /***************************************************/
 
         public static bool TryInstallPip(bool force=false)
         {
@@ -210,22 +226,16 @@ namespace Python.Included
             return false;
         }
 
-        /***************************************************/
-
         public static bool IsPythonInstalled()
         {
             return File.Exists(Path.Combine(EmbeddedPythonHome, "python.exe"));
 
         }
 
-        /***************************************************/
-
         public static bool IsPipInstalled()
         {
             return File.Exists(Path.Combine(EmbeddedPythonHome, "Scripts", "pip.exe"));
         }
-
-        /***************************************************/
 
         public static bool IsModuleInstalled(string module)
         {
@@ -236,43 +246,49 @@ namespace Python.Included
             return Directory.Exists(moduleDir) && File.Exists(Path.Combine(moduleDir, "__init__.py"));
         }
 
-        /***************************************************/
-
+        /// <summary>
+        /// Runs the specified command as a local system cmd processes.
+        /// </summary>
+        /// <param name="command">The arguments passed to cmd.</param>
+        /// <param name="runInBackground">
+        /// Indicates that no command windows will be visible and the process will automatically
+        /// terminate when complete. When true, the command window must be manually closed before
+        /// processing will continue.
+        /// </param>
         public static void RunCommand(string command, bool runInBackground = true)
         {
-            System.Diagnostics.Process process = new System.Diagnostics.Process();
-            System.Diagnostics.ProcessStartInfo startInfo = new System.Diagnostics.ProcessStartInfo();
-            if (runInBackground)
-                startInfo.WindowStyle = System.Diagnostics.ProcessWindowStyle.Hidden;
-            startInfo.FileName = "cmd.exe";
-            string commandMode = runInBackground ? "/C" : "/K";
-            startInfo.WorkingDirectory = EmbeddedPythonHome;
-            startInfo.Arguments = $"{commandMode} {command}";
-            process.StartInfo = startInfo;
-            process.Start();
-            process.WaitForExit();
-        }
-
-
-        /***************************************************/
-        /**** Private Methods                           ****/
-        /***************************************************/
-
-        private static void CopyEmbeddedResourceToFile(Assembly assembly, string resourceName, string filePath, bool force = false)
-        {
-            if (force || !File.Exists(filePath))
+            if (RuntimeInformation.IsOSPlatform(OSPlatform.Linux))
             {
-                var key = GetResourceKey(assembly, resourceName);
-                using (Stream stream = assembly.GetManifestResourceStream(key))
-                using (var file = new FileStream(filePath, FileMode.Create))
+                System.Diagnostics.Process process = new System.Diagnostics.Process();
+                process.StartInfo = new System.Diagnostics.ProcessStartInfo()
                 {
-                    if (stream == null)
-                        throw new ArgumentException($"Resource name '{resourceName}' not found!");
-                    stream.CopyTo(file);
-                }
+                    WindowStyle = System.Diagnostics.ProcessWindowStyle.Hidden,
+                    FileName = "/bin/bash",
+                    Arguments = $"-c {command}",
+
+                    // If the UseShellExecute property is true, the CreateNoWindow property value is ignored and a new window is created.
+                    // .NET Core does not support creating windows directly on Unix/Linux/macOS and the property is ignored.
+
+                    UseShellExecute = !runInBackground,
+                    CreateNoWindow = true,
+                };
+                process.Start();
+                process.WaitForExit();
+            }
+            else
+            {
+                System.Diagnostics.Process process = new System.Diagnostics.Process();
+                System.Diagnostics.ProcessStartInfo startInfo = new System.Diagnostics.ProcessStartInfo();
+                if (runInBackground)
+                    startInfo.WindowStyle = System.Diagnostics.ProcessWindowStyle.Hidden;
+                startInfo.FileName = "cmd.exe";
+                string commandMode = runInBackground ? "/C" : "/K";
+                startInfo.WorkingDirectory = EmbeddedPythonHome;
+                startInfo.Arguments = $"{commandMode} {command}";
+                process.StartInfo = startInfo;
+                process.Start();
+                process.WaitForExit();
             }
         }
-
-        /***************************************************/
     }
 }
