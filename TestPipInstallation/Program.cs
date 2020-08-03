@@ -13,15 +13,12 @@ namespace TestPipInstallation
     {
         public static async Task Main(string[] args)
         {
-            await Installer.SetupPython();
-            Installer.TryInstallPip();
+            // send installation logs to std out
+            Installer.LogMessage += Console.WriteLine;
             try
             {
-                if (!Installer.IsPipInstalled())
-                {
-                    Console.WriteLine("Error installing Pip");
-                    return;
-                }
+                await Installer.SetupPython();
+                Installer.TryInstallPip();
                 Installer.PipInstallModule("spacy");
                 PythonEngine.Initialize();
                 dynamic spacy = Py.Import("spacy");

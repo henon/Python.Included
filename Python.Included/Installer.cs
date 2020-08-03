@@ -5,6 +5,8 @@ using System.IO.Compression;
 using System.Linq;
 using System.Reflection;
 using System.Runtime.InteropServices;
+using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 using Python.Runtime;
 
@@ -14,11 +16,20 @@ namespace Python.Included
     {
         public const string EMBEDDED_PYTHON = "python-3.7.3-embed-amd64";
         public const string PYTHON_VERSION = "python37";
+
         /// <summary>
         /// Path to install python. If needed set it before calling SetupPython().
         /// <para>Default is: Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData)</para>
         /// </summary>
         public static string INSTALL_PATH { get; set; } = Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData);
+
+        public static event Action<string> LogMessage;
+
+        private static void Log(string message)
+        {
+            LogMessage?.Invoke(message);
+        }
+
         public static string EmbeddedPythonHome
         {
             get
@@ -33,7 +44,10 @@ namespace Python.Included
             if (!PythonEnv.DeployEmbeddedPython)
                 return;
             if (Runtime.Runtime.pyversion != "3.7")
+            {
+                Log("SetupPython: You must compile Python.Runtime with PYTHON37 flag! Runtime version: " + Runtime.Runtime.pyversion);
                 throw new InvalidOperationException("You must compile Python.Runtime with PYTHON37 flag! Runtime version: " + Runtime.Runtime.pyversion);
+            }
             Environment.SetEnvironmentVariable("PATH", $"{EmbeddedPythonHome};" + Environment.GetEnvironmentVariable("PATH"));
             if (!force && Directory.Exists(EmbeddedPythonHome) && File.Exists(Path.Combine(EmbeddedPythonHome, "python.exe"))) // python seems installed, so exit
                 return;
@@ -54,7 +68,7 @@ namespace Python.Included
                 }
                 catch (Exception e)
                 {
-                    Console.WriteLine("Error extracting zip file: " + zip);
+                    Log("SetupPython: Error extracting zip file: " + zip);
                 }
             });
         }
@@ -68,7 +82,10 @@ namespace Python.Included
                 using (var file = new FileStream(filePath, FileMode.Create))
                 {
                     if (stream == null)
+                    {
+                        Log($"CopyEmbeddedResourceToFile: Resource name '{resourceName}' not found!");
                         throw new ArgumentException($"Resource name '{resourceName}' not found!");
+                    }
                     stream.CopyTo(file);
                 }
             }
@@ -78,8 +95,6 @@ namespace Python.Included
         {
             return assembly.GetManifestResourceNames().FirstOrDefault(x => x.Contains(embedded_file));
         }
-
-        /***************************************************/
 
         /// <summary>
         /// Install a python library (.whl file) in the embedded python installation of Python.Included
@@ -173,7 +188,7 @@ namespace Python.Included
         /// terminate when complete. When true, the command window must be manually closed before
         /// processing will continue.
         /// </param>
-        public static void PipInstallModule(string module_name, string version = "", bool force = false, bool runInBackground = true)
+        public static void PipInstallModule(string module_name, string version = "", bool force = false)
         {
             TryInstallPip();
 
@@ -184,11 +199,11 @@ namespace Python.Included
             string forceInstall = force ? " --force-reinstall" : "";
             if (version.Length > 0)
                 version = $"=={version}";
-            
-            RunCommand($"{pipPath} install {module_name}{version} {forceInstall}", runInBackground);
+
+            RunCommand($"{pipPath} install {module_name}{version} {forceInstall}");
         }
 
-		/// <summary>
+        /// <summary>
         /// Download and install pip.
         /// </summary>
         /// <remarks>
@@ -199,18 +214,18 @@ namespace Python.Included
         /// terminate when complete. When true, the command window must be manually closed before
         /// processing will continue.
         /// </param>
-        public static void InstallPip(bool runInBackground = true)
+        public static void InstallPip()
         {
             string libDir = Path.Combine(EmbeddedPythonHome, "Lib");
 
             if (!Directory.Exists(libDir))
                 Directory.CreateDirectory(libDir);
 
-            RunCommand($"cd {libDir} && curl https://bootstrap.pypa.io/get-pip.py -o get-pip.py", runInBackground);
-            RunCommand($"cd {EmbeddedPythonHome} && python.exe Lib\\get-pip.py", runInBackground);
+            RunCommand($"cd {libDir} && curl https://bootstrap.pypa.io/get-pip.py -o get-pip.py");
+            RunCommand($"cd {EmbeddedPythonHome} && python.exe Lib\\get-pip.py");
         }
 
-        public static bool TryInstallPip(bool force=false)
+        public static bool TryInstallPip(bool force = false)
         {
             if (!IsPipInstalled() || force)
             {
@@ -256,39 +271,74 @@ namespace Python.Included
         /// terminate when complete. When true, the command window must be manually closed before
         /// processing will continue.
         /// </param>
-        public static void RunCommand(string command, bool runInBackground = true)
+        public static void RunCommand(string command) =>
+            RunCommand(command, CancellationToken.None).Wait();
+
+        public static async Task RunCommand(string command, CancellationToken token)
         {
-            System.Diagnostics.Process process = new System.Diagnostics.Process();
-            ProcessStartInfo startInfo = new System.Diagnostics.ProcessStartInfo();
-            if (RuntimeInformation.IsOSPlatform(OSPlatform.Linux))
+            Process process = new Process();
+            try
             {
-                // Unix/Linux/macOS specific command execution
-                startInfo = new System.Diagnostics.ProcessStartInfo()
+                string args = null;
+                string filename = null;
+                ProcessStartInfo startInfo = new ProcessStartInfo();
+                if (RuntimeInformation.IsOSPlatform(OSPlatform.Linux))
                 {
-                    WindowStyle = System.Diagnostics.ProcessWindowStyle.Hidden,
-                    FileName = "/bin/bash",
-                    Arguments = $"-c {command}",
+                    // Unix/Linux/macOS specific command execution
+                    filename = "/bin/bash";
+                    args = $"-c {command}";
+                }
+                else
+                {
+                    // Windows specific command execution
+                    filename = "cmd.exe";
+                    args = $"/C {command}";
+                }
+                Log($"> {filename} {args}");
+                startInfo = new ProcessStartInfo
+                {
+                    FileName = filename,
+                    WorkingDirectory = EmbeddedPythonHome,
+                    Arguments = args,
 
                     // If the UseShellExecute property is true, the CreateNoWindow property value is ignored and a new window is created.
                     // .NET Core does not support creating windows directly on Unix/Linux/macOS and the property is ignored.
 
-                    UseShellExecute = !runInBackground,
                     CreateNoWindow = true,
+                    UseShellExecute = false, // necessary for stdout redirection
+                    RedirectStandardError = true,
+                    RedirectStandardInput = true,
+                    RedirectStandardOutput = true,
+                    WindowStyle = ProcessWindowStyle.Hidden,
                 };
+                process.StartInfo = startInfo;
+                process.OutputDataReceived += (x, y) => Log(y.Data);
+                process.ErrorDataReceived += (x, y) => Log(y.Data);
+                process.Start();
+                process.BeginOutputReadLine();
+                process.BeginErrorReadLine();
+                token.Register(() =>
+                {
+                    try
+                    {
+                        if (!process.HasExited)
+                            process.Kill();
+                    }
+                    catch (Exception) { /* ignore */ }
+                });
+                await Task.Run(() => { process.WaitForExit(); }, token);
+                if (process.ExitCode != 0)
+                    Log(" => exit code " + process.ExitCode);
             }
-            else
+            catch (Exception e)
             {
-                // Windows specific command execution
-                if (runInBackground)
-                    startInfo.WindowStyle = System.Diagnostics.ProcessWindowStyle.Hidden;
-                startInfo.FileName = "cmd.exe";
-                string commandMode = runInBackground ? "/C" : "/K";
-                startInfo.WorkingDirectory = EmbeddedPythonHome;
-                startInfo.Arguments = $"{commandMode} {command}";
+                Log($"RunCommand: Error with command: '{command}'\r\n{e.Message}");
             }
-            process.StartInfo = startInfo;
-            process.Start();
-            process.WaitForExit();
+            finally
+            {
+                process?.Dispose();
+            }
         }
+
     }
 }
