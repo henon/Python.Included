@@ -6,7 +6,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Python.Included" Version="3.7.3.4" />
+    <PackageReference Include="Python.Included" Version="3.7.3.8" />
   </ItemGroup>
 
 </Project>
