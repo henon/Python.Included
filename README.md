@@ -74,6 +74,7 @@ The code is stable for Windows. For testing on other platforms help is wanted.
 
 ### Projects using Python.Included
 * [Numpy.NET](https://github.com/SciSharp/Numpy.NET)
+* [BHoM Python Toolkit](https://github.com/BHoM/Python_Toolkit) is a modified version of Python.Included
 
 ### License
 Since Python.Included distributes Python, it is licensed under the [Python Software Foundation License (PSF)](https://docs.python.org/3/license.html) like Python itself. 
