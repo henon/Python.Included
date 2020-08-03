@@ -78,12 +78,14 @@ namespace Python.Included
 
         /// <summary>
         /// Install a python library (.whl file) in the embedded python installation of Python.Included
+        ///
+        /// Note: Installing python packages using a custom wheel may result in an invalid python environment if the packages don't match the python version.
+        /// To be safe, use pip by calling Installer.PipInstallModule.
         /// </summary>
         /// <param name="assembly">The assembly containing the embedded wheel</param>
         /// <param name="resource_name">Name of the embedded wheel file i.e. "numpy-1.16.3-cp37-cp37m-win_amd64.whl"</param>
         /// <param name="force"></param>
         /// <returns></returns>
-        [Obsolete("Installing python packages using a custom wheel may result in an invalid python environment. Try using pip by calling Installer.PipInstallModule.")]
         public static async Task InstallWheel(Assembly assembly, string resource_name, bool force = false)
         {
             var key = GetResourceKey(assembly, resource_name);
@@ -124,6 +126,9 @@ namespace Python.Included
 
         /// <summary>
         /// Uses the local python-embedded pip module to install a python library (.whl file) in the embedded python installation of Python.Included
+        ///
+        /// Note: Installing python packages using a custom wheel may result in an invalid python environment if the packages don't match the python version.
+        /// To be safe, use pip by calling Installer.PipInstallModule.
         /// </summary>
         /// <param name="assembly">The assembly containing the embedded wheel</param>
         /// <param name="resource_name">Name of the embedded wheel file i.e. "numpy-1.16.3-cp37-cp37m-win_amd64.whl"</param>
