@@ -193,9 +193,9 @@ namespace Python.Included
 
         /***************************************************/
 
-        public static bool TryInstallPip()
+        public static bool TryInstallPip(bool force=false)
         {
-            if (!IsPipInstalled())
+            if (!IsPipInstalled() || force)
             {
                 try
                 {
