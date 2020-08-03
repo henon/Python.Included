@@ -11,16 +11,8 @@ using HtmlAgilityPack;
 
 namespace ReleaseBot
 {
-
-
-
-
     // Note: the Release bot is not working yet.  It needs to embed a different python-x.y.z-embed....zip for every version it builds.
     //      That must be implemented before it can work. 
-
-
-
-
 
     class Program
     {
@@ -31,6 +23,7 @@ namespace ReleaseBot
         private const string ProjectName = "Python.Included.csproj";
 
         private const string Description = "Python.Included is an automatic deployment mechanism for .NET packages which depend on the embedded Python distribution. This allows libraries depending on Python and/or Python packages to be deployed via Nuget without having to worry about any local Python installations.";
+
         private const string Tags = "Python, pythonnet, embedded Python";
 
 #error TODO: change the embedded python version dynamically!
@@ -174,6 +167,7 @@ namespace ReleaseBot
             var p = new Process()
             {
                 StartInfo = new ProcessStartInfo("dotnet", "restore")
+
                 { WorkingDirectory = Path.GetFullPath(RelativeProjectPath) }
             };
             p.Start();
@@ -186,6 +180,7 @@ namespace ReleaseBot
             var p = new Process()
             {
                 StartInfo = new ProcessStartInfo("dotnet", "build -c Release")
+
                 { WorkingDirectory = Path.GetFullPath(RelativeProjectPath) }
             };
             p.Start();
