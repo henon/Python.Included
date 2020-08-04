@@ -14,29 +14,33 @@ namespace Python.Included
 {
     public static class Installer
     {
-        public const string EMBEDDED_PYTHON = "python-3.7.3-embed-amd64";
         public const string PYTHON_VERSION = "python37";
 
         /// <summary>
-        /// Path to install python. If needed set it before calling SetupPython().
+        /// Path to install python. If needed, set before calling SetupPython().
         /// <para>Default is: Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData)</para>
         /// </summary>
-        public static string INSTALL_PATH { get; set; } = Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData);
+        public static string InstallPath { get; set; } = Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData);
 
+        /// <summary>
+        /// Name of the python directory. If needed, set before calling SetupPython().
+        /// Defaults to python-3.7.3-embed-amd64
+        /// </summary>
+        public static string InstallDirectory { get; set; } = "python-3.7.3-embed-amd64";
+
+        /// <summary>
+        /// The full path to the Python directory. Customize this by setting InstallPath and InstallDirectory
+        /// </summary>
+        public static string EmbeddedPythonHome => Path.Combine(InstallPath, InstallDirectory);
+
+        /// <summary>
+        /// Subscribe to this event to get installation log messages 
+        /// </summary>
         public static event Action<string> LogMessage;
 
         private static void Log(string message)
         {
             LogMessage?.Invoke(message);
-        }
-
-        public static string EmbeddedPythonHome
-        {
-            get
-            {
-                var install_dir = Path.Combine(INSTALL_PATH, EMBEDDED_PYTHON);
-                return install_dir;
-            }
         }
 
         public static async Task SetupPython(bool force = false)
@@ -54,8 +58,8 @@ namespace Python.Included
             await Task.Run(() =>
             {
                 var assembly = typeof(Installer).Assembly;
-                var zip = Path.Combine(INSTALL_PATH, $"{EMBEDDED_PYTHON}.zip");
-                var resource_name = EMBEDDED_PYTHON;
+                var zip = Path.Combine(InstallPath, $"{InstallDirectory}.zip");
+                var resource_name = InstallDirectory;
                 CopyEmbeddedResourceToFile(assembly, resource_name, zip, force);
                 try
                 {
