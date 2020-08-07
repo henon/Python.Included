@@ -1,0 +1,17 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>netstandard2.0</TargetFramework>
+    <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
+    <RootNamespace>Python.Deployment</RootNamespace>
+    <Authors>Meinrad Recheis</Authors>
+    <Description>An easy to use installer for embedded or downloaded python distributions for use with pythonnet or pythonnet_netstandard</Description>
+    <Copyright>Copyright (c) Meinrad Recheis</Copyright>
+    <PackageLicenseExpression>MIT</PackageLicenseExpression>
+    <PackageProjectUrl>https://github.com/henon/Python.Included</PackageProjectUrl>
+    <RepositoryUrl>https://github.com/henon/Python.Included</RepositoryUrl>
+    <RepositoryType>git</RepositoryType>
+    <PackageTags>Python, pythonnet, embedded, interop, deployment</PackageTags>
+  </PropertyGroup>
+
+</Project>
