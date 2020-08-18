@@ -78,21 +78,21 @@ namespace Python.Included
             }
             try
             {
-                Python.Installer.LogMessage += Log;
-                Python.Installer.Source = GetInstallationSource();
-                Python.Installer.InstallDirectory = InstallDirectory;
-                Python.Installer.InstallPath = InstallPath;
-                await Python.Installer.SetupPython(force);
+                Python.Deployment.Installer.LogMessage += Log;
+                Python.Deployment.Installer.Source = GetInstallationSource();
+                Python.Deployment.Installer.PythonDirectoryName = InstallDirectory;
+                Python.Deployment.Installer.InstallPath = InstallPath;
+                await Python.Deployment.Installer.SetupPython(force);
             }
             finally
             {
-                Python.Installer.LogMessage -= Log;
+                Python.Deployment.Installer.LogMessage -= Log;
             }
         }
 
-        private static Python.Installer.InstallationSource GetInstallationSource()
+        private static Python.Deployment.Installer.InstallationSource GetInstallationSource()
         {
-            return new Python.Installer.EmbeddedResourceInstallationSource()
+            return new Python.Deployment.Installer.EmbeddedResourceInstallationSource()
             {
                 Assembly = typeof(PythonEnv).Assembly,
                 ResourceName = "python-3.7.3-embed-amd64.zip",
@@ -113,15 +113,15 @@ namespace Python.Included
         {
             try
             {
-                Python.Installer.LogMessage += Log;
-                Python.Installer.Source = GetInstallationSource();
-                Python.Installer.InstallDirectory = InstallDirectory;
-                Python.Installer.InstallPath = InstallPath;
-                await Python.Installer.InstallWheel(assembly, resource_name, force);
+                Python.Deployment.Installer.LogMessage += Log;
+                Python.Deployment.Installer.Source = GetInstallationSource();
+                Python.Deployment.Installer.PythonDirectoryName = InstallDirectory;
+                Python.Deployment.Installer.InstallPath = InstallPath;
+                await Python.Deployment.Installer.InstallWheel(assembly, resource_name, force);
             }
             finally
             {
-                Python.Installer.LogMessage -= Log;
+                Python.Deployment.Installer.LogMessage -= Log;
             }
         }
 
@@ -139,15 +139,15 @@ namespace Python.Included
         {
             try
             {
-                Python.Installer.LogMessage += Log;
-                Python.Installer.Source = GetInstallationSource();
-                Python.Installer.InstallDirectory = InstallDirectory;
-                Python.Installer.InstallPath = InstallPath;
-                Python.Installer.PipInstallWheel(assembly, resource_name, force);
+                Python.Deployment.Installer.LogMessage += Log;
+                Python.Deployment.Installer.Source = GetInstallationSource();
+                Python.Deployment.Installer.PythonDirectoryName = InstallDirectory;
+                Python.Deployment.Installer.InstallPath = InstallPath;
+                Python.Deployment.Installer.PipInstallWheel(assembly, resource_name, force);
             }
             finally
             {
-                Python.Installer.LogMessage -= Log;
+                Python.Deployment.Installer.LogMessage -= Log;
             }
         }
 
@@ -160,15 +160,15 @@ namespace Python.Included
         {
             try
             {
-                Python.Installer.LogMessage += Log;
-                Python.Installer.Source = GetInstallationSource();
-                Python.Installer.InstallDirectory = InstallDirectory;
-                Python.Installer.InstallPath = InstallPath;
-                Python.Installer.PipInstallModule(module_name, version, force);
+                Python.Deployment.Installer.LogMessage += Log;
+                Python.Deployment.Installer.Source = GetInstallationSource();
+                Python.Deployment.Installer.PythonDirectoryName = InstallDirectory;
+                Python.Deployment.Installer.InstallPath = InstallPath;
+                Python.Deployment.Installer.PipInstallModule(module_name, version, force);
             }
             finally
             {
-                Python.Installer.LogMessage -= Log;
+                Python.Deployment.Installer.LogMessage -= Log;
             }
         }
 
@@ -182,15 +182,15 @@ namespace Python.Included
         {
             try
             {
-                Python.Installer.LogMessage += Log;
-                Python.Installer.Source = GetInstallationSource();
-                Python.Installer.InstallDirectory = InstallDirectory;
-                Python.Installer.InstallPath = InstallPath;
-                Python.Installer.InstallPip();
+                Python.Deployment.Installer.LogMessage += Log;
+                Python.Deployment.Installer.Source = GetInstallationSource();
+                Python.Deployment.Installer.PythonDirectoryName = InstallDirectory;
+                Python.Deployment.Installer.InstallPath = InstallPath;
+                Python.Deployment.Installer.InstallPip();
             }
             finally
             {
-                Python.Installer.LogMessage -= Log;
+                Python.Deployment.Installer.LogMessage -= Log;
             }
         }
 

@@ -29,4 +29,8 @@
     <PackageReference Include="pythonnet_netstandard_py37_win" Version="2.5.1" />
   </ItemGroup>
 
+  <ItemGroup>
+    <ProjectReference Include="..\Python.Deployment\Python.Deployment.csproj" />
+  </ItemGroup>
+
 </Project>

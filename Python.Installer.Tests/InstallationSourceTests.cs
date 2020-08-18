@@ -1,4 +1,5 @@
 using NUnit.Framework;
+using Python.Deployment;
 
 namespace Python.Tests
 {
@@ -12,7 +13,7 @@ namespace Python.Tests
         [Test]
         public void GetPythonDistributionProperties()
         {
-            Installer.InstallationSource src = new Python.Installer.EmbeddedResourceInstallationSource()
+            Python.Deployment.Installer.InstallationSource src = new Python.Deployment.Installer.EmbeddedResourceInstallationSource()
             {
                 Assembly = typeof(InstallationSourceTests).Assembly,
                 ResourceName = "python-3.7.3-embed-amd64.zip",
@@ -20,7 +21,7 @@ namespace Python.Tests
             Assert.AreEqual("python-3.7.3-embed-amd64.zip", src.GetPythonZipFileName());
             Assert.AreEqual("python-3.7.3-embed-amd64", src.GetPythonDistributionName());
             Assert.AreEqual("python37", src.GetPythonVersion());
-            src = new Python.Installer.DownloadInstallationSource()
+            src = new Python.Deployment.Installer.DownloadInstallationSource()
             {
                 DownloadUrl = @"https://www.python.org/ftp/python/3.7.3/python-3.7.3-embed-amd64.zip",
             };
