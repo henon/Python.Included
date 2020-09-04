@@ -12,6 +12,7 @@
     <RepositoryUrl>https://github.com/henon/Python.Included</RepositoryUrl>
     <RepositoryType>git</RepositoryType>
     <PackageTags>Python, pythonnet, embedded, interop, deployment</PackageTags>
+    <Version>1.1.0</Version>
   </PropertyGroup>
 
 </Project>
