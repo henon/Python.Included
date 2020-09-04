@@ -137,15 +137,25 @@ namespace Python.Deployment
                 CopyEmbeddedResourceToFile(assembly, key, wheelPath, force);
                 try
                 {
-                    ZipFile.ExtractToDirectory(wheelPath, lib);
+                    using (var zip = ZipFile.OpenRead(wheelPath))
+                    {
+                        var allFilesAlreadyPresent = AreAllFilesAlreadyPresent(zip, lib);
+                        if (!allFilesAlreadyPresent)
+                        {
+                            zip.ExtractToDirectory(lib);
+                        }
+                    }
                 }
-                catch (Exception e)
+                catch (Exception)
                 {
                     Console.WriteLine("Error extracting zip file: " + wheelPath);
                 }
+
+                File.Delete(wheelPath);
+
                 // modify _pth file
                 var pth = Path.Combine(EmbeddedPythonHome, Source.GetPythonVersion() + "._pth");
-                if (!File.ReadAllLines(pth).Contains("./Lib"))
+                if (File.Exists(pth) && !File.ReadAllLines(pth).Contains("./Lib"))
                     File.AppendAllLines(pth, new[] { "./Lib" });
             });
         }
@@ -185,7 +195,7 @@ namespace Python.Deployment
             RunCommand($"{pipPath} install {wheelPath}");
         }
 
-        private static void CopyEmbeddedResourceToFile(Assembly assembly, string resourceName, string filePath, bool force=false)
+        private static void CopyEmbeddedResourceToFile(Assembly assembly, string resourceName, string filePath, bool force = false)
         {
             if (!force && File.Exists(filePath))
                 return;
@@ -379,5 +389,20 @@ namespace Python.Deployment
             }
         }
 
+        private static bool AreAllFilesAlreadyPresent(ZipArchive zip, string lib)
+        {
+            var allFilesAllReadyPresent = true;
+            foreach (var entry in zip.Entries)
+            {
+                var fn = Path.Combine(lib, entry.FullName);
+                if (!File.Exists(fn))
+                {
+                    allFilesAllReadyPresent = false;
+                    break;
+                }
+            }
+
+            return allFilesAllReadyPresent;
+        }
     }
 }
