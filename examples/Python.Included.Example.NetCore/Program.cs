@@ -46,6 +46,7 @@ namespace Python.Included.Example.NetCore
             dynamic spacy = Py.Import("spacy");
             Console.WriteLine("### Spacy version:\n\t" + spacy.__version__);
 
+            Console.WriteLine("\nDone. Press any key to exit.");
 #if NETFRAMEWORK
             Console.ReadKey();
 #endif

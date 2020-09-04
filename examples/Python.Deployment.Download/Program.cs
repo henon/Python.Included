@@ -16,7 +16,7 @@ namespace Python.Deployment.Download
             // set the download source
             Python.Deployment.Installer.Source = new Deployment.Installer.DownloadInstallationSource()
             {
-                DownloadUrl = @"https://www.python.org/ftp/python/2.7.9/python-2.7.9.amd64-pdb.zip",
+                DownloadUrl = @"https://www.python.org/ftp/python/3.7.3/python-3.7.3-embed-amd64.zip",
             };
 
             // install in local directory. if you don't set it will install in local app data of your user account

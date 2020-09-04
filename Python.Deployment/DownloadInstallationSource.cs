@@ -24,10 +24,13 @@ SOFTWARE.
 
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Reflection;
+using System.Runtime.InteropServices;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace Python.Deployment
@@ -47,17 +50,83 @@ namespace Python.Deployment
 
             public override async Task<string> RetrievePythonZip(string destinationDirectory)
             {
-                var filePath = Path.Combine(destinationDirectory, GetPythonDistributionName());
-                if (!Force && File.Exists(filePath))
-                    return filePath;
-                RunCommand($"curl {DownloadUrl} -o {filePath}");
-                return filePath;
+                var zipFile = Path.Combine(destinationDirectory, GetPythonZipFileName());
+                if (!Force && File.Exists(zipFile))
+                    return zipFile;
+                await RunCommand($"curl {DownloadUrl} -o {zipFile}", CancellationToken.None);
+                return zipFile;
             }
 
             public override string GetPythonZipFileName()
             {
                 Uri uri = new Uri(DownloadUrl);
                 return System.IO.Path.GetFileName(uri.LocalPath);
+            }
+
+            public static async Task RunCommand(string command, CancellationToken token)
+            {
+                Process process = new Process();
+                try
+                {
+                    string args = null;
+                    string filename = null;
+                    ProcessStartInfo startInfo = new ProcessStartInfo();
+                    if (RuntimeInformation.IsOSPlatform(OSPlatform.Linux))
+                    {
+                        // Unix/Linux/macOS specific command execution
+                        filename = "/bin/bash";
+                        args = $"-c {command}";
+                    }
+                    else
+                    {
+                        // Windows specific command execution
+                        filename = "cmd.exe";
+                        args = $"/C {command}";
+                    }
+                    Log($"> {filename} {args}");
+                    startInfo = new ProcessStartInfo
+                    {
+                        FileName = filename,
+                        WorkingDirectory = Directory.GetCurrentDirectory(),
+                        Arguments = args,
+
+                        // If the UseShellExecute property is true, the CreateNoWindow property value is ignored and a new window is created.
+                        // .NET Core does not support creating windows directly on Unix/Linux/macOS and the property is ignored.
+
+                        CreateNoWindow = true,
+                        UseShellExecute = false, // necessary for stdout redirection
+                        RedirectStandardError = true,
+                        RedirectStandardInput = true,
+                        RedirectStandardOutput = true,
+                        WindowStyle = ProcessWindowStyle.Hidden,
+                    };
+                    process.StartInfo = startInfo;
+                    process.OutputDataReceived += (x, y) => Log(y.Data);
+                    process.ErrorDataReceived += (x, y) => Log(y.Data);
+                    process.Start();
+                    process.BeginOutputReadLine();
+                    process.BeginErrorReadLine();
+                    token.Register(() =>
+                    {
+                        try
+                        {
+                            if (!process.HasExited)
+                                process.Kill();
+                        }
+                        catch (Exception) { /* ignore */ }
+                    });
+                    await Task.Run(() => { process.WaitForExit(); }, token);
+                    if (process.ExitCode != 0)
+                        Log(" => exit code " + process.ExitCode);
+                }
+                catch (Exception e)
+                {
+                    Log($"RunCommand: Error with command: '{command}'\r\n{e.Message}");
+                }
+                finally
+                {
+                    process?.Dispose();
+                }
             }
 
         }
