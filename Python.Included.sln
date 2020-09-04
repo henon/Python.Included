@@ -20,6 +20,8 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Python.Deployment.EmbeddedR
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Python.Deployment.Download", "examples\Python.Deployment.Download\Python.Deployment.Download.csproj", "{7EC83CDC-5FA7-4ABE-82E8-EE58E9523212}"
 EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Python.Deployment.InstallWheel", "examples\Python.Deployment.InstallWheel\Python.Deployment.InstallWheel.csproj", "{FBEB579E-6E90-4804-BF51-D5B38BAD3789}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -58,6 +60,10 @@ Global
 		{7EC83CDC-5FA7-4ABE-82E8-EE58E9523212}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{7EC83CDC-5FA7-4ABE-82E8-EE58E9523212}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{7EC83CDC-5FA7-4ABE-82E8-EE58E9523212}.Release|Any CPU.Build.0 = Release|Any CPU
+		{FBEB579E-6E90-4804-BF51-D5B38BAD3789}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{FBEB579E-6E90-4804-BF51-D5B38BAD3789}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{FBEB579E-6E90-4804-BF51-D5B38BAD3789}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{FBEB579E-6E90-4804-BF51-D5B38BAD3789}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -67,6 +73,7 @@ Global
 		{4C92618B-BC6A-4AFA-9F49-3808D975D0DD} = {7B4C443D-A615-4717-83B0-036B98B3E6B0}
 		{0E7266AC-C5B3-44D7-94AF-B7A06128386C} = {7B4C443D-A615-4717-83B0-036B98B3E6B0}
 		{7EC83CDC-5FA7-4ABE-82E8-EE58E9523212} = {7B4C443D-A615-4717-83B0-036B98B3E6B0}
+		{FBEB579E-6E90-4804-BF51-D5B38BAD3789} = {7B4C443D-A615-4717-83B0-036B98B3E6B0}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {1AD41278-71D6-4DE3-A5A9-D18A2067B168}

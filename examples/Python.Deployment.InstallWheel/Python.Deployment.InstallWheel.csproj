@@ -1,0 +1,21 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <TargetFramework>netcoreapp3.1</TargetFramework>
+  </PropertyGroup>
+  <ItemGroup>
+    <None Remove="numpy-1.16.3-cp37-cp37m-win_amd64.whl" />
+    <None Remove="python-3.7.3-embed-amd64.zip" />
+    <None Remove="python-3.8.5-embed-amd64.zip" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="numpy-1.16.3-cp37-cp37m-win_amd64.whl" />
+    <EmbeddedResource Include="python-3.7.3-embed-amd64.zip" />
+  </ItemGroup>
+  <ItemGroup>
+    <PackageReference Include="pythonnet_netstandard_py37_win" Version="2.5.1" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\..\Python.Deployment\Python.Deployment.csproj" />
+  </ItemGroup>
+</Project>
