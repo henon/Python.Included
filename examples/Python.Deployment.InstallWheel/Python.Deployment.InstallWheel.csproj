@@ -7,10 +7,14 @@
     <None Remove="numpy-1.16.3-cp37-cp37m-win_amd64.whl" />
     <None Remove="python-3.7.3-embed-amd64.zip" />
     <None Remove="python-3.8.5-embed-amd64.zip" />
+    <None Remove="python_dateutil-2.8.1-py2.py3-none-any.whl" />
+    <None Remove="six-1.15.0-py2.py3-none-any.whl" />
   </ItemGroup>
   <ItemGroup>
     <EmbeddedResource Include="numpy-1.16.3-cp37-cp37m-win_amd64.whl" />
     <EmbeddedResource Include="python-3.7.3-embed-amd64.zip" />
+    <EmbeddedResource Include="python_dateutil-2.8.1-py2.py3-none-any.whl" />
+    <EmbeddedResource Include="six-1.15.0-py2.py3-none-any.whl" />
   </ItemGroup>
   <ItemGroup>
     <PackageReference Include="pythonnet_netstandard_py37_win" Version="2.5.1" />
