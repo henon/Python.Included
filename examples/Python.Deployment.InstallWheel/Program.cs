@@ -10,7 +10,8 @@ namespace Python.Deployment.InstallWheel
         static async Task Main(string[] args)
         {
             // ================================================
-            // This example demonstrates how to embed a Python distribution (v3.8.5) and install it locally 
+            // This example demonstrates how to install wheel files from the assembly's resources
+            // into the embedded Python distribution (v3.7.3)
             // ================================================
 
             // set the installation source to be the embedded python zip from our resources
