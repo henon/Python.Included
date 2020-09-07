@@ -123,9 +123,7 @@ namespace Python.Deployment
             if (string.IsNullOrWhiteSpace(module_name))
                 throw new ArgumentException($"The resource name '{resource_name}' did not contain a valid module name");
 
-            var lib = Path.Combine(EmbeddedPythonHome, "Lib");
-            if (!Directory.Exists(lib))
-                Directory.CreateDirectory(lib);
+            var lib = GetLibDirectory();
 
             var module_path = Path.Combine(lib, module_name);
             if (!force && Directory.Exists(module_path))
@@ -135,6 +133,60 @@ namespace Python.Deployment
             await Task.Run(() =>
             {
                 CopyEmbeddedResourceToFile(assembly, key, wheelPath, force);
+            }).ConfigureAwait(false);
+
+            await InstallLocalWheel(wheelPath, lib).ConfigureAwait(false);
+        }
+
+        /// <summary>
+        /// Install a python library (.whl file) in the embedded python installation of Python.Included
+        /// Note: Installing python packages using a custom wheel may result in an invalid python environment if the packages don't match the python version.
+        /// To be safe, use pip by calling Installer.PipInstallModule.
+        /// </summary>
+        /// <param name="wheelPath">The wheel file path.</param>
+        /// <param name="force">if set to <c>true</c> [force].</param>
+        /// <exception cref="ArgumentException">
+        /// The resource '{resource_name}' was not found in assembly '{assembly.FullName}'
+        /// or
+        /// The resource name '{resource_name}' did not contain a valid module name
+        /// </exception>
+        public static async Task InstallWheel(string wheelPath, bool force = false)
+        {
+            var moduleName = GetModuleNameFromWheelFile(wheelPath);
+            var lib = GetLibDirectory();
+
+            var modulePath = Path.Combine(lib, moduleName);
+            if (!force && Directory.Exists(modulePath))
+                return;
+
+            await InstallLocalWheel(wheelPath, lib).ConfigureAwait(false);
+        }
+
+        private static string GetModuleNameFromWheelFile(string wheelPath)
+        {
+            var fileName = Path.GetFileName(wheelPath);
+            var moduleName = fileName.Split('-').FirstOrDefault();
+            if (string.IsNullOrWhiteSpace(moduleName))
+            {
+                throw new ArgumentException($"The file name '{fileName}' did not contain a valid module name");
+            }
+            return moduleName;
+        }
+
+        private static string GetLibDirectory()
+        {
+            var lib = Path.Combine(EmbeddedPythonHome, "Lib");
+            if (!Directory.Exists(lib))
+            {
+                Directory.CreateDirectory(lib);
+            }
+            return lib;
+        }
+
+        private static async Task InstallLocalWheel(string wheelPath, string lib)
+        {
+            await Task.Run(() =>
+            {
                 try
                 {
                     using (var zip = ZipFile.OpenRead(wheelPath))
@@ -156,8 +208,8 @@ namespace Python.Deployment
                 // modify _pth file
                 var pth = Path.Combine(EmbeddedPythonHome, Source.GetPythonVersion() + "._pth");
                 if (File.Exists(pth) && !File.ReadAllLines(pth).Contains("./Lib"))
-                    File.AppendAllLines(pth, new[] { "./Lib" });
-            });
+                    File.AppendAllLines(pth, new[] {"./Lib"});
+            }).ConfigureAwait(false);
         }
 
         /// <summary>

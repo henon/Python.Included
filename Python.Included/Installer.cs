@@ -228,6 +228,5 @@ namespace Python.Included
             string moduleDir = Path.Combine(EmbeddedPythonHome, "Lib", "site-packages", module);
             return Directory.Exists(moduleDir) && File.Exists(Path.Combine(moduleDir, "__init__.py"));
         }
-
     }
 }

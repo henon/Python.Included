@@ -41,6 +41,9 @@ namespace Python.Deployment.InstallWheel
             await Python.Deployment.Installer.InstallWheel(typeof(Program).Assembly,
                 "six-1.15.0-py2.py3-none-any.whl"); // Unzips to root of Libs
 
+            // Install wheel present in local file system
+            await Python.Deployment.Installer.InstallWheel(@".\pytz-2020.1-py2.py3-none-any.whl");
+
             // ok, now use pythonnet from that installation
             PythonEngine.Initialize();
 
@@ -83,6 +86,13 @@ print('Today is: %s (no, it isn\'t)' % today)
 print('Year with next Aug 13th on a Friday is: %s' % year)
 print('How far is the Easter of that year: %s' % rdelta)
 print('And the Easter of that year is: %s' % (today + rdelta))
+
+# do some pytz stuff
+import pytz
+print ('UTC time zone: %s' % pytz.utc);
+
+from pytz import timezone
+print ('Eastern time zone: %s' % timezone('US/Eastern'));
 ");
         }
     }
