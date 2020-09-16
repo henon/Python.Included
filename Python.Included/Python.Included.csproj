@@ -3,7 +3,7 @@
   <PropertyGroup>
     <TargetFramework>netstandard2.0</TargetFramework>
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
-    <Version>3.7.3.12</Version>
+    <Version>3.7.3.13</Version>
     <Authors>Meinrad Recheis and Python Software Foundation</Authors>
     <Description>Python.Included is an automatic deployment mechanism for .NET packages which depend on the embedded Python distribution. This allows libraries depending on Python and/or Python packages to be deployed via Nuget without having to worry about any local Python installations.</Description>
     <PackageLicenseUrl>https://docs.python.org/3/license.html</PackageLicenseUrl>
@@ -12,8 +12,8 @@
     <RepositoryType>github</RepositoryType>
     <PackageTags>Python, pythonnet, embedded, interop, deployment</PackageTags>
     <PackageIconUrl>https://github.com/henon/Python.Included/blob/master/art/python_included_nuget.png</PackageIconUrl>
-    <AssemblyVersion>3.7.3.12</AssemblyVersion>
-    <FileVersion>3.7.3.12</FileVersion>
+    <AssemblyVersion>3.7.3.13</AssemblyVersion>
+    <FileVersion>3.7.3.13</FileVersion>
     <Copyright>Copyright 2019-2020 Meinrad Recheis and Python Software Foundation</Copyright>
   </PropertyGroup>
 
