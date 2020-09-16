@@ -136,6 +136,8 @@ namespace Python.Deployment
             }).ConfigureAwait(false);
 
             await InstallLocalWheel(wheelPath, lib).ConfigureAwait(false);
+
+            File.Delete(wheelPath);
         }
 
         /// <summary>
@@ -202,8 +204,6 @@ namespace Python.Deployment
                 {
                     Console.WriteLine("Error extracting zip file: " + wheelPath);
                 }
-
-                File.Delete(wheelPath);
 
                 // modify _pth file
                 var pth = Path.Combine(EmbeddedPythonHome, Source.GetPythonVersion() + "._pth");
