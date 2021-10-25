@@ -53,7 +53,7 @@ namespace Python.Deployment
                 var zipFile = Path.Combine(destinationDirectory, GetPythonZipFileName());
                 if (!Force && File.Exists(zipFile))
                     return zipFile;
-                await RunCommand($"curl {DownloadUrl} -o {zipFile}", CancellationToken.None);
+                await RunCommand($"curl {DownloadUrl} -o \"{zipFile}\"", CancellationToken.None);
                 return zipFile;
             }
 
