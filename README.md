@@ -68,6 +68,8 @@ Console.WriteLine("Spacy version: " + spacy.__version__);
 
 Check out the example project `TestPipInstallation` to try it out.
 
+Downloading PIP requires [`curl`](https://curl.se/). Please make sure it is installed and available on systen PATH.
+
 ### Project Status
 
 The code is stable for Windows. For testing on other platforms help is wanted.
