@@ -1,9 +1,11 @@
+using System;
 using NUnit.Framework;
 using Python.Deployment;
+using Python.Runtime;
 
 namespace Python.Tests
 {
-    public class InstallationSourceTests
+    public class PythonIncludedTests
     {
         [SetUp]
         public void Setup()

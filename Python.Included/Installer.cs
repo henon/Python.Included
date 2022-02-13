@@ -38,7 +38,7 @@ namespace Python.Included
 {
     public static class Installer
     {
-        public const string PYTHON_VERSION = "python37";
+        public const string PYTHON_VERSION = "python310";
 
         /// <summary>
         /// Path to install python. If needed, set before calling SetupPython().
@@ -50,7 +50,7 @@ namespace Python.Included
         /// Name of the python directory. If needed, set before calling SetupPython().
         /// Defaults to python-3.7.3-embed-amd64
         /// </summary>
-        public static string InstallDirectory { get; set; } = "python-3.7.3-embed-amd64";
+        public static string InstallDirectory { get; set; } = "python-3.10.0-embed-amd64";
 
         /// <summary>
         /// The full path to the Python directory. Customize this by setting InstallPath and InstallDirectory
@@ -71,11 +71,8 @@ namespace Python.Included
         {
             if (!PythonEnv.DeployEmbeddedPython)
                 return;
-            if (Runtime.Runtime.pyversion != "3.7")
-            {
-                Log("SetupPython: You must compile Python.Runtime with PYTHON37 flag! Runtime version: " + Runtime.Runtime.pyversion);
-                throw new InvalidOperationException("You must compile Python.Runtime with PYTHON37 flag! Runtime version: " + Runtime.Runtime.pyversion);
-            }
+            Runtime.Runtime.PythonDLL = "python310.dll";
+
             try
             {
                 Python.Deployment.Installer.LogMessage += Log;
@@ -95,7 +92,7 @@ namespace Python.Included
             return new Python.Deployment.Installer.EmbeddedResourceInstallationSource()
             {
                 Assembly = typeof(PythonEnv).Assembly,
-                ResourceName = "python-3.7.3-embed-amd64.zip",
+                ResourceName = "python-3.10.0-embed-amd64.zip",
             };
         }
 

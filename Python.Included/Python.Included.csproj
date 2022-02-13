@@ -3,30 +3,40 @@
   <PropertyGroup>
     <TargetFramework>netstandard2.0</TargetFramework>
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
-    <Version>3.7.3.13</Version>
+    <Version>3.10.0-preview1</Version>
     <Authors>Meinrad Recheis and Python Software Foundation</Authors>
     <Description>Python.Included is an automatic deployment mechanism for .NET packages which depend on the embedded Python distribution. This allows libraries depending on Python and/or Python packages to be deployed via Nuget without having to worry about any local Python installations.</Description>
-    <PackageLicenseUrl>https://docs.python.org/3/license.html</PackageLicenseUrl>
+    <PackageLicenseUrl></PackageLicenseUrl>
     <PackageProjectUrl>https://github.com/henon/Python.Included</PackageProjectUrl>
     <RepositoryUrl>https://github.com/henon/Python.Included</RepositoryUrl>
     <RepositoryType>github</RepositoryType>
     <PackageTags>Python, pythonnet, embedded, interop, deployment</PackageTags>
-    <PackageIconUrl>https://github.com/henon/Python.Included/blob/master/art/python_included_nuget.png</PackageIconUrl>
-    <AssemblyVersion>3.7.3.13</AssemblyVersion>
-    <FileVersion>3.7.3.13</FileVersion>
-    <Copyright>Copyright 2019-2020 Meinrad Recheis and Python Software Foundation</Copyright>
+    <PackageIconUrl></PackageIconUrl>
+    <AssemblyVersion>3.10.0.0</AssemblyVersion>
+    <FileVersion>3.10.0.0</FileVersion>
+    <Copyright>Copyright 2019-2022 Meinrad Recheis and Python Software Foundation</Copyright>
+    <PackageIcon>python_included_nuget.png</PackageIcon>
+    <PackageLicenseFile>LICENSE</PackageLicenseFile>
   </PropertyGroup>
 
   <ItemGroup>
-    <None Remove="Resources\python-3.7.3-embed-amd64.zip" />
+    <None Remove="Resources\python-3.10.0-embed-amd64.zip" />
+    <None Include="..\LICENSE">
+      <Pack>True</Pack>
+      <PackagePath></PackagePath>
+    </None>
+    <None Include="Resources\python_included_nuget.png">
+      <Pack>True</Pack>
+      <PackagePath></PackagePath>
+    </None>
   </ItemGroup>
 
   <ItemGroup>
-    <EmbeddedResource Include="Resources\python-3.7.3-embed-amd64.zip" />
+    <EmbeddedResource Include="Resources\python-3.10.0-embed-amd64.zip" />
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="pythonnet_netstandard_py37_win" Version="2.5.1" />
+    <PackageReference Include="pythonnet" Version="3.0.0-preview2022-02-03" />
   </ItemGroup>
 
   <ItemGroup>
