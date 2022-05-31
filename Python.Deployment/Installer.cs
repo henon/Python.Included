@@ -48,7 +48,6 @@ namespace Python.Deployment
         /// </summary>
         public static string PythonDirectoryName { get; set; } = null;
 
-
         public static InstallationSource Source { get; set; } = new DownloadInstallationSource() { DownloadUrl = @"https://www.python.org/ftp/python/3.7.3/python-3.7.3-embed-amd64.zip" };
 
         /// <summary>
