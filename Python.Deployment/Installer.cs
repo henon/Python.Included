@@ -88,7 +88,8 @@ namespace Python.Deployment
             {
                 try
                 {
-                    ZipFile.ExtractToDirectory(zip, zip.Replace(".zip", ""));
+                    //ZipFile.ExtractToDirectory(zip, zip.Replace(".zip", ""));
+                    ZipFile.ExtractToDirectory(zip, PythonDirectoryName);
 
                     // allow pip on embedded python installation
                     // see https://github.com/pypa/pip/issues/4207#issuecomment-281236055
