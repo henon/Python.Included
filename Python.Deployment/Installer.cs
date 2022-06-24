@@ -333,14 +333,13 @@ namespace Python.Deployment
                 try
                 {
                     InstallPip();
-                    return true;
                 }
                 catch
                 {
                     throw new FileNotFoundException("pip is not installed");
                 }
             }
-            return false;
+            return IsPipInstalled();
         }
 
         public static bool IsPythonInstalled()
