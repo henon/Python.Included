@@ -324,7 +324,9 @@ namespace Python.Deployment
 
             string getPipUrl = @"https://bootstrap.pypa.io/get-pip.py";
             string getPipFilePath = Path.Combine(libDir, "get-pip.py");
-            await Downloader.Download(getPipUrl, getPipFilePath);
+            Log("Downloading Pip...");
+            await Downloader.Download(getPipUrl, getPipFilePath, progress => Log($"{progress:F2}%"));
+            Log("Done!");
 
             RunCommand($"cd {EmbeddedPythonHome} && python.exe Lib\\get-pip.py");
         }

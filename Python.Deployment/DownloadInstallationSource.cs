@@ -53,7 +53,8 @@ namespace Python.Deployment
                 try
                 {
                     Log("Downloading source...");
-                    await Downloader.Download(DownloadUrl, zipFile);
+                    await Downloader.Download(DownloadUrl, zipFile, progress => Log($"{progress:F2}%"));
+                    Log("Done!");
                     return zipFile;
                 }
                 catch (Exception)
