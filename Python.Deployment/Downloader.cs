@@ -13,7 +13,7 @@ namespace Python.Deployment
             Stream responseStream = await httpClient.GetStreamAsync(downloadUrl);
             using (FileStream fileStream = new FileStream(outputFileName, FileMode.Create))
             {
-                responseStream.CopyTo(fileStream);
+                await responseStream.CopyToAsync(fileStream);
             }
         }
     }
