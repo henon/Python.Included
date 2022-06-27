@@ -208,7 +208,7 @@ namespace Python.Deployment
                 // modify _pth file
                 var pth = Path.Combine(EmbeddedPythonHome, Source.GetPythonVersion() + "._pth");
                 if (File.Exists(pth) && !File.ReadAllLines(pth).Contains("./Lib"))
-                    File.AppendAllLines(pth, new[] {"./Lib"});
+                    File.AppendAllLines(pth, new[] { "./Lib" });
             }).ConfigureAwait(false);
         }
 
@@ -315,24 +315,27 @@ namespace Python.Deployment
         /// terminate when complete. When true, the command window must be manually closed before
         /// processing will continue.
         /// </param>
-        public static void InstallPip()
+        public static async Task InstallPip()
         {
             string libDir = Path.Combine(EmbeddedPythonHome, "Lib");
 
             if (!Directory.Exists(libDir))
                 Directory.CreateDirectory(libDir);
 
-            RunCommand($"cd {libDir} && curl https://bootstrap.pypa.io/get-pip.py -o get-pip.py");
+            string getPipUrl = @"https://bootstrap.pypa.io/get-pip.py";
+            string getPipFilePath = Path.Combine(libDir, "get-pip.py");
+            await Downloader.Download(getPipUrl, getPipFilePath);
+
             RunCommand($"cd {EmbeddedPythonHome} && python.exe Lib\\get-pip.py");
         }
 
-        public static bool TryInstallPip(bool force = false)
+        public static async Task<bool> TryInstallPip(bool force = false)
         {
             if (!IsPipInstalled() || force)
             {
                 try
                 {
-                    InstallPip();
+                    await InstallPip();
                 }
                 catch
                 {
