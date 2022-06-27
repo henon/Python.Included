@@ -21,8 +21,6 @@ namespace Python.Deployment
                 await httpClient.DownloadWithProgressAsync(downloadUrl, fileStream, progress, token);
             }
         }
-
-
     }
 
     public static class HttpClientExtension
