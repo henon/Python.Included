@@ -222,7 +222,7 @@ namespace Python.Deployment
         /// <param name="resource_name">Name of the embedded wheel file i.e. "numpy-1.16.3-cp37-cp37m-win_amd64.whl"</param>
         /// <param name="force"></param>
         /// <returns></returns>
-        public static void PipInstallWheel(Assembly assembly, string resource_name, bool force = false)
+        public static async Task PipInstallWheel(Assembly assembly, string resource_name, bool force = false)
         {
             string key = GetResourceKey(assembly, resource_name);
             if (string.IsNullOrWhiteSpace(key))
@@ -242,7 +242,7 @@ namespace Python.Deployment
 
             CopyEmbeddedResourceToFile(assembly, key, wheelPath, force);
 
-            TryInstallPip();
+            await TryInstallPip();
 
             RunCommand($"{pipPath} install {wheelPath}");
         }
@@ -289,9 +289,9 @@ namespace Python.Deployment
         /// terminate when complete. When true, the command window must be manually closed before
         /// processing will continue.
         /// </param>
-        public static void PipInstallModule(string module_name, string version = "", bool force = false)
+        public static async Task PipInstallModule(string module_name, string version = "", bool force = false)
         {
-            TryInstallPip();
+            await TryInstallPip();
 
             if (IsModuleInstalled(module_name) && !force)
                 return;
@@ -324,9 +324,19 @@ namespace Python.Deployment
 
             string getPipUrl = @"https://bootstrap.pypa.io/get-pip.py";
             string getPipFilePath = Path.Combine(libDir, "get-pip.py");
-            Log("Downloading Pip...");
-            await Downloader.Download(getPipUrl, getPipFilePath, progress => Log($"{progress:F2}%"));
-            Log("Done!");
+
+            try
+            {
+                Log("Downloading Pip...");
+                await Downloader.Download(getPipUrl, getPipFilePath, progress => Log($"{progress:F2}%"));
+                Log("Done!");
+            }
+            catch (Exception)
+            {
+                Log("There was a problem downloading pip.");
+                return;
+            }
+
 
             RunCommand($"cd {EmbeddedPythonHome} && python.exe Lib\\get-pip.py");
         }
