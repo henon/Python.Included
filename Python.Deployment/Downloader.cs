@@ -23,7 +23,7 @@ namespace Python.Deployment
                     await httpClient.DownloadWithProgressAsync(downloadUrl, fileStream, progress, token);
                 }
             }
-            catch (OperationCanceledException)
+            catch
             {
                 if (File.Exists(outputFilePath))
                 {
@@ -45,6 +45,8 @@ namespace Python.Deployment
         {
             using (var response = await client.GetAsync(requestUri, HttpCompletionOption.ResponseHeadersRead))
             {
+                response.EnsureSuccessStatusCode();
+
                 var contentLength = response.Content.Headers.ContentLength;
 
                 using (var download = await response.Content.ReadAsStreamAsync())

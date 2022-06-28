@@ -57,10 +57,10 @@ namespace Python.Deployment
                     Log("Done!");
                     return zipFile;
                 }
-                catch (Exception)
+                catch (Exception ex)
                 {
-                    Log("There was a problem downloading the source.");
-                    return String.Empty;
+                    Log($"There was a problem downloading the source: {ex.Message}");
+                    return string.Empty;
                 }
 
             }

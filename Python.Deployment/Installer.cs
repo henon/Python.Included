@@ -331,9 +331,9 @@ namespace Python.Deployment
                 await Downloader.Download(getPipUrl, getPipFilePath, progress => Log($"{progress:F2}%"));
                 Log("Done!");
             }
-            catch (Exception)
+            catch (Exception ex)
             {
-                Log("There was a problem downloading pip.");
+                Log($"There was a problem downloading pip: {ex.Message}");
                 return;
             }
 
