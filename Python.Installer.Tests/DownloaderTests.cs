@@ -61,7 +61,7 @@ namespace Python.Tests
                 TestResources.DownloadFilename,
                 OnPercentageProgess);
 
-            Assert.AreNotEqual(0, percentProgress);
+            Assert.AreEqual(100, percentProgress);
         }
     }
 }
