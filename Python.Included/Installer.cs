@@ -184,13 +184,13 @@ namespace Python.Included
             }
         }
 
-        public static bool TryInstallPip(bool force = false)
+        public static async Task<bool> TryInstallPip(bool force = false)
         {
             if (!IsPipInstalled() || force)
             {
                 try
                 {
-                    InstallPip();
+                    await InstallPip();
                 }
                 catch
                 {

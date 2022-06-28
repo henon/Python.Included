@@ -16,9 +16,20 @@ namespace Python.Deployment
             Action<float> progress = null,
             CancellationToken token = default)
         {
-            using (FileStream fileStream = new FileStream(outputFilePath, FileMode.Create))
+            try
             {
-                await httpClient.DownloadWithProgressAsync(downloadUrl, fileStream, progress, token);
+                using (FileStream fileStream = new FileStream(outputFilePath, FileMode.Create))
+                {
+                    await httpClient.DownloadWithProgressAsync(downloadUrl, fileStream, progress, token);
+                }
+            }
+            catch (OperationCanceledException)
+            {
+                if (File.Exists(outputFilePath))
+                {
+                    File.Delete(outputFilePath);
+                }
+                throw;
             }
         }
     }
