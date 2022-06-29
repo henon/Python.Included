@@ -23,13 +23,9 @@ SOFTWARE.
  */
 
 using System;
-using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
-using System.Linq;
-using System.Reflection;
 using System.Runtime.InteropServices;
-using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -53,8 +49,20 @@ namespace Python.Deployment
                 var zipFile = Path.Combine(destinationDirectory, GetPythonZipFileName());
                 if (!Force && File.Exists(zipFile))
                     return zipFile;
-                await RunCommand($"curl {DownloadUrl} -o \"{zipFile}\"", CancellationToken.None);
-                return zipFile;
+
+                try
+                {
+                    Log("Downloading source...");
+                    await Downloader.Download(DownloadUrl, zipFile, progress => Log($"{progress:F2}%"));
+                    Log("Done!");
+                    return zipFile;
+                }
+                catch (Exception ex)
+                {
+                    Log($"There was a problem downloading the source: {ex.Message}");
+                    return string.Empty;
+                }
+
             }
 
             public override string GetPythonZipFileName()
