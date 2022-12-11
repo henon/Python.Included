@@ -64,8 +64,10 @@ namespace Python.Included
         {
             if (!PythonEnv.DeployEmbeddedPython)
                 return;
-            Runtime.Runtime.PythonDLL = "python311.dll";
-
+                    
+            if (Runtime.Runtime.PythonDLL == null)
+                Runtime.Runtime.PythonDLL = "python311.dll"; // <-- note: since pythonnet v3.0.1 this can not be set multiple times!
+            
             try
             {
                 Python.Deployment.Installer.LogMessage += Log;
