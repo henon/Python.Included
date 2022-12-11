@@ -46,6 +46,7 @@ namespace Python.Included.Example.NetFramework
             Console.WriteLine("### Spacy version:\n\t" + spacy.__version__);
 
 #if NETFRAMEWORK
+            Console.WriteLine("Hit any key to exit.");
             Console.ReadKey();
 #endif
         }
