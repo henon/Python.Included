@@ -123,6 +123,9 @@ namespace Python.Deployment
                         }
                         catch (Exception) { /* ignore */ }
                     });
+                    // The documentation for Process.StandardOutput says to read before you wait otherwise you can deadlock!
+                    string output = process.StandardOutput.ReadToEnd();
+                    Log(output);
                     await Task.Run(() => { process.WaitForExit(); }, token);
                     if (process.ExitCode != 0)
                         Log(" => exit code " + process.ExitCode);
