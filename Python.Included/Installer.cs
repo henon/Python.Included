@@ -26,6 +26,7 @@ using System;
 using System.IO;
 using System.Reflection;
 using System.Threading.Tasks;
+using System.Runtime.InteropServices;
 
 namespace Python.Included
 {
@@ -204,12 +205,18 @@ namespace Python.Included
 
         public static bool IsPythonInstalled()
         {
-            return File.Exists(Path.Combine(EmbeddedPythonHome, "python.exe"));
+            if (RuntimeInformation.IsOSPlatform(OSPlatform.Linux))
+                return File.Exists(Path.Combine(EmbeddedPythonHome, "python"));
+            else
+                return File.Exists(Path.Combine(EmbeddedPythonHome, "python.exe"));
         }
 
         public static bool IsPipInstalled()
         {
-            return File.Exists(Path.Combine(EmbeddedPythonHome, "Scripts", "pip.exe"));
+            if (RuntimeInformation.IsOSPlatform(OSPlatform.Linux))
+                return File.Exists(Path.Combine(EmbeddedPythonHome, "pip"));
+            else
+                return File.Exists(Path.Combine(EmbeddedPythonHome, "Scripts", "pip.exe"));
         }
 
         public static bool IsModuleInstalled(string module)
