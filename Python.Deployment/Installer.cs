@@ -415,7 +415,7 @@ namespace Python.Deployment
                 {
                     // Unix/Linux/macOS specific command execution
                     filename = "/bin/bash";
-                    args = $"-c {command}";
+                    args = $@"-c ""{command}""";
                 }
                 else
                 {
