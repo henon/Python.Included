@@ -427,9 +427,9 @@ namespace Python.Deployment
                     WindowStyle = ProcessWindowStyle.Hidden,
                 };
                 process.StartInfo = startInfo;
-                process.OutputDataReceived += (x, y) => Log(y.Data);
-                process.ErrorDataReceived += (x, y) => Log(y.Data);
                 process.Start();
+                // Note: see https://github.com/henon/Python.Included/issues/55#issuecomment-1634750418
+                // as to why the following lines are commented out
                 //process.BeginOutputReadLine();
                 //process.BeginErrorReadLine();
                 token.Register(() =>
@@ -445,8 +445,10 @@ namespace Python.Deployment
                 string output = process.StandardOutput.ReadToEnd();
                 Log(output);
                 await Task.Run(() => { process.WaitForExit(); }, token);
-                if (process.ExitCode != 0)
+                if (process.ExitCode != 0) {
+                    Log(process.StandardError.ReadToEnd());
                     Log(" => exit code " + process.ExitCode);
+                }
             }
             catch (Exception e)
             {
