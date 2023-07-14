@@ -430,8 +430,8 @@ namespace Python.Deployment
                 process.OutputDataReceived += (x, y) => Log(y.Data);
                 process.ErrorDataReceived += (x, y) => Log(y.Data);
                 process.Start();
-                process.BeginOutputReadLine();
-                process.BeginErrorReadLine();
+                //process.BeginOutputReadLine();
+                //process.BeginErrorReadLine();
                 token.Register(() =>
                 {
                     try
