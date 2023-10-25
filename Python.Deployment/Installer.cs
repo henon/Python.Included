@@ -244,7 +244,7 @@ namespace Python.Deployment
 
             await TryInstallPip();
 
-            RunCommand($"{pipPath} install {wheelPath}");
+            RunCommand($"\"{pipPath}\" install \"{wheelPath}\"");
         }
 
         private static void CopyEmbeddedResourceToFile(Assembly assembly, string resourceName, string filePath, bool force = false)
@@ -301,7 +301,7 @@ namespace Python.Deployment
             if (version.Length > 0)
                 version = $"=={version}";
 
-            RunCommand($"{pipPath} install {module_name}{version} {forceInstall}");
+            RunCommand($"\"{pipPath}\" install \"{module_name}{version}\" {forceInstall}");
         }
 
         /// <summary>
@@ -338,7 +338,7 @@ namespace Python.Deployment
             }
 
 
-            RunCommand($"cd {EmbeddedPythonHome} && python.exe Lib\\get-pip.py");
+            RunCommand($"cd \"{EmbeddedPythonHome}\" && python.exe Lib\\get-pip.py");
         }
 
         public static async Task<bool> TryInstallPip(bool force = false)
