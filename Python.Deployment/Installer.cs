@@ -76,8 +76,12 @@ namespace Python.Deployment
         public static async Task SetupPython(bool force = false)
         {
             Environment.SetEnvironmentVariable("PATH", $"{EmbeddedPythonHome};" + Environment.GetEnvironmentVariable("PATH"));
-            if (!force && Directory.Exists(EmbeddedPythonHome) && File.Exists(Path.Combine(EmbeddedPythonHome, "python.exe"))) // python seems installed, so exit
-                return;
+            if (RuntimeInformation.IsOSPlatform(OSPlatform.Linux))
+                if (!force && Directory.Exists(EmbeddedPythonHome) && File.Exists(Path.Combine(EmbeddedPythonHome, "python"))) // python seems installed, so exit
+                    return;
+            else
+                if (!force && Directory.Exists(EmbeddedPythonHome) && File.Exists(Path.Combine(EmbeddedPythonHome, "python.exe"))) // python seems installed, so exit
+                    return;
             var zip = await Source.RetrievePythonZip(InstallPath);
             if (string.IsNullOrWhiteSpace(zip))
             {
@@ -296,7 +300,11 @@ namespace Python.Deployment
             if (IsModuleInstalled(module_name) && !force)
                 return;
 
-            string pipPath = Path.Combine(EmbeddedPythonHome, "Scripts", "pip");
+            string pipPath;
+            if (RuntimeInformation.IsOSPlatform(OSPlatform.Linux))
+                pipPath = Path.Combine(EmbeddedPythonHome, "pip");
+            else
+                pipPath = Path.Combine(EmbeddedPythonHome, "Scripts", "pip.exe");
             string forceInstall = force ? " --force-reinstall" : "";
             if (version.Length > 0)
                 version = $"=={version}";
@@ -359,13 +367,19 @@ namespace Python.Deployment
 
         public static bool IsPythonInstalled()
         {
-            return File.Exists(Path.Combine(EmbeddedPythonHome, "python.exe"));
+            if (RuntimeInformation.IsOSPlatform(OSPlatform.Linux))
+                return File.Exists(Path.Combine(EmbeddedPythonHome, "python"));
+            else
+                return File.Exists(Path.Combine(EmbeddedPythonHome, "python.exe"));
 
         }
 
         public static bool IsPipInstalled()
         {
-            return File.Exists(Path.Combine(EmbeddedPythonHome, "Scripts", "pip.exe"));
+            if (RuntimeInformation.IsOSPlatform(OSPlatform.Linux))
+                return File.Exists(Path.Combine(EmbeddedPythonHome, "pip"));
+            else
+                return File.Exists(Path.Combine(EmbeddedPythonHome, "Scripts", "pip.exe"));
         }
 
         public static bool IsModuleInstalled(string module)
@@ -401,7 +415,7 @@ namespace Python.Deployment
                 {
                     // Unix/Linux/macOS specific command execution
                     filename = "/bin/bash";
-                    args = $"-c {command}";
+                    args = $@"-c ""{command}""";
                 }
                 else
                 {
@@ -442,8 +456,8 @@ namespace Python.Deployment
                     catch (Exception) { /* ignore */ }
                 });
                 // The documentation for Process.StandardOutput says to read before you wait otherwise you can deadlock!
-                string output = process.StandardOutput.ReadToEnd();
-                Log(output);
+                //string output = process.StandardOutput.ReadToEnd();
+                //Log(output);
                 await Task.Run(() => { process.WaitForExit(); }, token);
                 if (process.ExitCode != 0) {
                     Log(process.StandardError.ReadToEnd());
