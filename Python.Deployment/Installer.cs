@@ -401,13 +401,13 @@ namespace Python.Deployment
                 {
                     // Unix/Linux/macOS specific command execution
                     filename = "/bin/bash";
-                    args = $"-c {command}";
+                    args = $"-c \"{command} \"";
                 }
                 else
                 {
                     // Windows specific command execution
                     filename = "cmd.exe";
-                    args = $"/C {command}";
+                    args = $"/C \"{command}\"";
                 }
                 Log($"> {filename} {args}");
                 startInfo = new ProcessStartInfo
