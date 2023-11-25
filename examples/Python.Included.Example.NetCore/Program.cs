@@ -25,10 +25,10 @@ namespace Python.Included.Example.NetCore
             await Installer.SetupPython();
 
             // install pip3 for package installation
-            Installer.TryInstallPip();
+            await Installer.TryInstallPip();
 
             // download and install Spacy from the internet
-            Installer.PipInstallModule("spacy");
+            await Installer.PipInstallModule("spacy");
 
             // ok, now use pythonnet from that installation
             PythonEngine.Initialize();
