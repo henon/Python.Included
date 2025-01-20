@@ -27,7 +27,7 @@ namespace NetCoreExample
         {
             await Installer.SetupPython();
             PythonEngine.Initialize();
-            dynamic sys=PythonEngine.ImportModule("sys");
+            dynamic sys = Py.Import("sys");
             Console.WriteLine("Python version: " + sys.version);
         }
     }
@@ -59,8 +59,8 @@ You can install a current version of `pip3` and use that to install any python p
 
 ```c#
 await Installer.SetupPython();
-Installer.TryInstallPip();
-Installer.PipInstallModule("spacy");
+await Installer.TryInstallPip();
+await Installer.PipInstallModule("spacy");
 PythonEngine.Initialize();
 dynamic spacy = Py.Import("spacy");
 Console.WriteLine("Spacy version: " + spacy.__version__);
