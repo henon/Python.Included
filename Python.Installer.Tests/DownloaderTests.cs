@@ -52,10 +52,7 @@ namespace Python.Tests
         public async Task DownloaderReportsProgress()
         {
             float percentProgress = 0;
-            void OnPercentageProgess(float percentage)
-            {
-                percentProgress = percentage;
-            }
+            void OnPercentageProgess(float percentage) => percentProgress = percentage;
 
             await Downloader.Download(
                 TestResources.DownloadValidUrl,

@@ -56,6 +56,7 @@ namespace Python.Deployment
                     if (progress == null || !contentLength.HasValue)
                     {
                         await download.CopyToAsync(destination, bufferSize, cancellationToken);
+                        progress?.Invoke(100f);
                         return;
                     }
 
