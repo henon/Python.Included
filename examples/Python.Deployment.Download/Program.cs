@@ -28,6 +28,7 @@ namespace Python.Deployment.Download
             // install from the given source
             await Python.Deployment.Installer.SetupPython();
 
+            Runtime.Runtime.PythonDLL = "python37.dll"; // set the python dll to use, this is the one we just installed
             // ok, now use pythonnet from that installation
             PythonEngine.Initialize();
 

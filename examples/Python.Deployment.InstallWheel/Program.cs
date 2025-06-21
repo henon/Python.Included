@@ -44,6 +44,7 @@ namespace Python.Deployment.InstallWheel
             // Install wheel present in local file system
             await Python.Deployment.Installer.InstallWheel(@".\pytz-2020.1-py2.py3-none-any.whl");
 
+            Runtime.Runtime.PythonDLL = "python37.dll"; // set the python dll to use, this is the one we just installed
             // ok, now use pythonnet from that installation
             PythonEngine.Initialize();
 

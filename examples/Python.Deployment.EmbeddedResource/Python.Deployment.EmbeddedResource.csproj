@@ -10,7 +10,7 @@
     <EmbeddedResource Include="python-3.8.5-embed-amd64.zip" />
   </ItemGroup>
   <ItemGroup>
-    <PackageReference Include="pythonnet_netstandard_py38_win" Version="2.5.1" />
+    <PackageReference Include="pythonnet" Version="3.0.5" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\Python.Deployment\Python.Deployment.csproj" />

@@ -30,6 +30,7 @@ namespace Python.Deployment.EmbeddedResource
             // install from the given source
             await Python.Deployment.Installer.SetupPython();
 
+            Runtime.Runtime.PythonDLL = "python38.dll"; // set the python dll to use, this is the one we just installed
             // ok, now use pythonnet from that installation
             PythonEngine.Initialize();
 
