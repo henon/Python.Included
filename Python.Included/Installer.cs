@@ -31,7 +31,7 @@ namespace Python.Included
 {
     public static class Installer
     {
-        public const string PYTHON_VERSION = "python311";
+        public const string PYTHON_VERSION = "python313";
 
         /// <summary>
         /// Path to install python. If needed, set before calling SetupPython().
@@ -43,7 +43,7 @@ namespace Python.Included
         /// Name of the python directory. If needed, set before calling SetupPython().
         /// Defaults to python-3.7.3-embed-amd64
         /// </summary>
-        public static string InstallDirectory { get; set; } = "python-3.11.0-embed-amd64";
+        public static string InstallDirectory { get; set; } = "python-3.13.0-embed-amd64";
 
         /// <summary>
         /// The full path to the Python directory. Customize this by setting InstallPath and InstallDirectory
@@ -66,7 +66,7 @@ namespace Python.Included
                 return;
                     
             if (Runtime.Runtime.PythonDLL == null)
-                Runtime.Runtime.PythonDLL = "python311.dll"; // <-- note: since pythonnet v3.0.1 this can not be set multiple times!
+                Runtime.Runtime.PythonDLL = "python313.dll"; // <-- note: since pythonnet v3.0.1 this can not be set multiple times!
             
             try
             {
@@ -87,7 +87,7 @@ namespace Python.Included
             return new Python.Deployment.Installer.EmbeddedResourceInstallationSource()
             {
                 Assembly = typeof(PythonEnv).Assembly,
-                ResourceName = "python-3.11.0-embed-amd64.zip",
+                ResourceName = "python-3.13.0-embed-amd64.zip",
             };
         }
 
