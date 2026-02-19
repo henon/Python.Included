@@ -43,7 +43,7 @@ namespace Python.Included
         /// Name of the python directory. If needed, set before calling SetupPython().
         /// Defaults to python-3.7.3-embed-amd64
         /// </summary>
-        public static string InstallDirectory { get; set; } = "python-3.13.0-embed-amd64";
+        public static string InstallDirectory { get; set; } = "python-3.13.12-embed-amd64";
 
         /// <summary>
         /// The full path to the Python directory. Customize this by setting InstallPath and InstallDirectory
@@ -87,7 +87,7 @@ namespace Python.Included
             return new Python.Deployment.Installer.EmbeddedResourceInstallationSource()
             {
                 Assembly = typeof(PythonEnv).Assembly,
-                ResourceName = "python-3.13.0-embed-amd64.zip",
+                ResourceName = "python-3.13.12-embed-amd64.zip",
             };
         }
 
