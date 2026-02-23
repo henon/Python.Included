@@ -41,7 +41,7 @@ namespace Python.Included
 
         /// <summary>
         /// Name of the python directory. If needed, set before calling SetupPython().
-        /// Defaults to python-3.7.3-embed-amd64
+        /// Defaults to python-3.13.0-embed-amd64
         /// </summary>
         public static string InstallDirectory { get; set; } = "python-3.13.12-embed-amd64";
 

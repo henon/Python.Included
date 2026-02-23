@@ -4,7 +4,7 @@
 
 Python.Included is an automatic deployment mechanism for .NET packages which depend on the embedded Python distribution. This allows  libraries depending on Python and/or Python packages to be deployed via Nuget without having to worry about any local Python installations. 
 
-It packages embedded Python (python-3.7.3-embed-amd64.zip) in its .NET assembly and automatically deploys it in the user's home directory upon first execution. On subsequent runs, it will find Python already deployed and therefor doesn't install it again. It also features a Python package (\*.whl) installer which Numpy.NET uses to install the NumPy wheel into the embedded Python installation. Last but not least, for packages that are too big to package into .NET nugets, there is support for installing those with `pip`.
+It packages embedded Python (python-3.13.0-embed-amd64.zip) in its .NET assembly and automatically deploys it in the user's home directory upon first execution. On subsequent runs, it will find Python already deployed and therefor doesn't install it again. It also features a Python package (\*.whl) installer which Numpy.NET uses to install the NumPy wheel into the embedded Python installation. Last but not least, for packages that are too big to package into .NET nugets, there is support for installing those with `pip`.
 
 Note: Python.Included only implements deployment on top of [pythonnet_netstandard](https://github.com/henon/pythonnet_netstandard). If you do not need (or want) the automatic deployment of embedded Python you should use that.
 
@@ -34,7 +34,7 @@ namespace NetCoreExample
 }
 ```
 
-Output:
+Output (may differ due to updated Python version):
 ```
 Python version: 3.7.3 (v3.7.3:ef4ec6ed12, Mar 25 2019, 22:22:05) [MSC v.1916 64 bit (AMD64)]
 ```

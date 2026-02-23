@@ -3,7 +3,7 @@
   <PropertyGroup>
     <TargetFramework>netstandard2.0</TargetFramework>
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
-    <Version>3.13.12</Version>
+    <Version>3.13.1</Version>
     <Authors>Meinrad Recheis and Python Software Foundation</Authors>
     <Description>Python.Included is an automatic deployment mechanism for .NET packages which depend on the embedded Python distribution. This allows libraries depending on Python and/or Python packages to be deployed via Nuget without having to worry about any local Python installations.</Description>
     <PackageLicenseUrl></PackageLicenseUrl>
@@ -17,6 +17,8 @@
     <Copyright>Copyright 2019-2022 Meinrad Recheis and Python Software Foundation</Copyright>
     <PackageIcon>python_included_nuget.png</PackageIcon>
     <PackageLicenseFile>LICENSE</PackageLicenseFile>
+    <Title>Python.Included</Title>
+    <PackageReadmeFile>README.md</PackageReadmeFile>
   </PropertyGroup>
 
   <ItemGroup>
@@ -31,6 +33,10 @@
     <None Include="..\LICENSE">
       <Pack>True</Pack>
       <PackagePath></PackagePath>
+    </None>
+    <None Include="..\README.md">
+      <Pack>True</Pack>
+      <PackagePath>\</PackagePath>
     </None>
     <None Include="Resources\python_included_nuget.png">
       <Pack>True</Pack>
