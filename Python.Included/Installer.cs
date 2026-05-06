@@ -25,6 +25,7 @@ SOFTWARE.
 using System;
 using System.IO;
 using System.Reflection;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace Python.Included
@@ -64,10 +65,10 @@ namespace Python.Included
         {
             if (!PythonEnv.DeployEmbeddedPython)
                 return;
-                    
+
             if (Runtime.Runtime.PythonDLL == null)
                 Runtime.Runtime.PythonDLL = "python313.dll"; // <-- note: since pythonnet v3.0.1 this can not be set multiple times!
-            
+
             try
             {
                 Python.Deployment.Installer.LogMessage += Log;
@@ -127,7 +128,7 @@ namespace Python.Included
         /// <param name="resource_name">Name of the embedded wheel file i.e. "numpy-1.16.3-cp37-cp37m-win_amd64.whl"</param>
         /// <param name="force"></param>
         /// <returns></returns>
-        public static async Task PipInstallWheel(Assembly assembly, string resource_name, bool force = false)
+        public static async Task PipInstallWheel(Assembly assembly, string resource_name, bool force = false, CancellationToken token = default)
         {
             try
             {
@@ -135,7 +136,7 @@ namespace Python.Included
                 Python.Deployment.Installer.Source = GetInstallationSource();
                 Python.Deployment.Installer.PythonDirectoryName = InstallDirectory;
                 Python.Deployment.Installer.InstallPath = InstallPath;
-                await Python.Deployment.Installer.PipInstallWheel(assembly, resource_name, force);
+                await Python.Deployment.Installer.PipInstallWheel(assembly, resource_name, force, token);
             }
             finally
             {
@@ -148,7 +149,7 @@ namespace Python.Included
         /// </summary>
         /// <param name="module_name">The module/package to install </param>
         /// <param name="force">When true, reinstall the packages even if it is already up-to-date.</param>
-        public static async Task PipInstallModule(string module_name, string version = "", bool force = false)
+        public static async Task PipInstallModule(string module_name, string version = "", bool force = false, CancellationToken token = default)
         {
             try
             {
@@ -156,7 +157,7 @@ namespace Python.Included
                 Python.Deployment.Installer.Source = GetInstallationSource();
                 Python.Deployment.Installer.PythonDirectoryName = InstallDirectory;
                 Python.Deployment.Installer.InstallPath = InstallPath;
-                await Python.Deployment.Installer.PipInstallModule(module_name, version, force);
+                await Python.Deployment.Installer.PipInstallModule(module_name, version, force, token);
             }
             finally
             {
@@ -170,7 +171,7 @@ namespace Python.Included
         /// <remarks>
         /// Creates the lib folder under <see cref="EmbeddedPythonHome"/> if it does not exist.
         /// </remarks>
-        public static async Task InstallPip()
+        public static async Task InstallPip(CancellationToken token = default)
         {
             try
             {
@@ -178,7 +179,7 @@ namespace Python.Included
                 Python.Deployment.Installer.Source = GetInstallationSource();
                 Python.Deployment.Installer.PythonDirectoryName = InstallDirectory;
                 Python.Deployment.Installer.InstallPath = InstallPath;
-                await Python.Deployment.Installer.InstallPip();
+                await Python.Deployment.Installer.InstallPip(token);
             }
             finally
             {
