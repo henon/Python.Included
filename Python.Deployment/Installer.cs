@@ -222,7 +222,7 @@ namespace Python.Deployment
         /// <param name="resource_name">Name of the embedded wheel file i.e. "numpy-1.16.3-cp37-cp37m-win_amd64.whl"</param>
         /// <param name="force"></param>
         /// <returns></returns>
-        public static async Task PipInstallWheel(Assembly assembly, string resource_name, bool force = false)
+        public static async Task PipInstallWheel(Assembly assembly, string resource_name, bool force = false, CancellationToken token = default)
         {
             string key = GetResourceKey(assembly, resource_name);
             if (string.IsNullOrWhiteSpace(key))
@@ -244,7 +244,7 @@ namespace Python.Deployment
 
             await TryInstallPip();
 
-            RunCommand($"\"{pipPath}\" install \"{wheelPath}\"");
+            await RunCommand($"\"{pipPath}\" install \"{wheelPath}\"", token);
         }
 
         private static void CopyEmbeddedResourceToFile(Assembly assembly, string resourceName, string filePath, bool force = false)
@@ -289,7 +289,7 @@ namespace Python.Deployment
         /// terminate when complete. When true, the command window must be manually closed before
         /// processing will continue.
         /// </param>
-        public static async Task PipInstallModule(string module_name, string version = "", bool force = false)
+        public static async Task PipInstallModule(string module_name, string version = "", bool force = false, CancellationToken token = default)
         {
             await TryInstallPip();
 
@@ -301,7 +301,7 @@ namespace Python.Deployment
             if (version.Length > 0)
                 version = $"=={version}";
 
-            RunCommand($"\"{pipPath}\" install \"{module_name}{version}\" {forceInstall}");
+            await RunCommand($"\"{pipPath}\" install \"{module_name}{version}\" {forceInstall}", token);
         }
 
         /// <summary>
@@ -315,7 +315,7 @@ namespace Python.Deployment
         /// terminate when complete. When true, the command window must be manually closed before
         /// processing will continue.
         /// </param>
-        public static async Task InstallPip()
+        public static async Task InstallPip(CancellationToken token = default)
         {
             string libDir = Path.Combine(EmbeddedPythonHome, "Lib");
 
@@ -338,7 +338,7 @@ namespace Python.Deployment
             }
 
 
-            RunCommand($"cd \"{EmbeddedPythonHome}\" && python.exe Lib\\get-pip.py");
+            await RunCommand($"cd \"{EmbeddedPythonHome}\" && python.exe Lib\\get-pip.py", token);
         }
 
         public static async Task<bool> TryInstallPip(bool force = false)
@@ -376,18 +376,6 @@ namespace Python.Deployment
             string moduleDir = Path.Combine(EmbeddedPythonHome, "Lib", "site-packages", module);
             return Directory.Exists(moduleDir) && File.Exists(Path.Combine(moduleDir, "__init__.py"));
         }
-
-        /// <summary>
-        /// Runs the specified command as a local system cmd processes.
-        /// </summary>
-        /// <param name="command">The arguments passed to cmd.</param>
-        /// <param name="runInBackground">
-        /// Indicates that no command windows will be visible and the process will automatically
-        /// terminate when complete. When true, the command window must be manually closed before
-        /// processing will continue.
-        /// </param>
-        public static void RunCommand(string command) =>
-            RunCommand(command, CancellationToken.None).Wait();
 
         public static async Task RunCommand(string command, CancellationToken token)
         {
@@ -445,7 +433,8 @@ namespace Python.Deployment
                 string output = process.StandardOutput.ReadToEnd();
                 Log(output);
                 await Task.Run(() => { process.WaitForExit(); }, token);
-                if (process.ExitCode != 0) {
+                if (process.ExitCode != 0)
+                {
                     Log(process.StandardError.ReadToEnd());
                     Log(" => exit code " + process.ExitCode);
                 }
