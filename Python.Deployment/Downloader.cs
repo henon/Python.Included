@@ -20,7 +20,7 @@ namespace Python.Deployment
             {
                 using (FileStream fileStream = new FileStream(outputFilePath, FileMode.Create))
                 {
-                    await httpClient.DownloadWithProgressAsync(downloadUrl, fileStream, progress, token);
+                    await httpClient.DownloadWithProgressAsync(downloadUrl, fileStream, progress, token).ConfigureAwait(false);
                 }
             }
             catch
@@ -43,19 +43,19 @@ namespace Python.Deployment
             Action<float> progress = null,
             CancellationToken cancellationToken = default)
         {
-            using (var response = await client.GetAsync(requestUri, HttpCompletionOption.ResponseHeadersRead))
+            using (var response = await client.GetAsync(requestUri, HttpCompletionOption.ResponseHeadersRead, cancellationToken).ConfigureAwait(false))
             {
                 response.EnsureSuccessStatusCode();
 
                 var contentLength = response.Content.Headers.ContentLength;
 
-                using (var download = await response.Content.ReadAsStreamAsync())
+                using (var download = await response.Content.ReadAsStreamAsync().ConfigureAwait(false))
                 {
                     int bufferSize = 81920;
 
                     if (progress == null || !contentLength.HasValue)
                     {
-                        await download.CopyToAsync(destination, bufferSize, cancellationToken);
+                        await download.CopyToAsync(destination, bufferSize, cancellationToken).ConfigureAwait(false);
                         progress?.Invoke(100f);
                         return;
                     }
@@ -63,9 +63,9 @@ namespace Python.Deployment
                     var buffer = new byte[bufferSize];
                     long totalBytesRead = 0;
                     int bytesRead;
-                    while ((bytesRead = await download.ReadAsync(buffer, 0, buffer.Length, cancellationToken)) != 0)
+                    while ((bytesRead = await download.ReadAsync(buffer, 0, buffer.Length, cancellationToken).ConfigureAwait(false)) != 0)
                     {
-                        await destination.WriteAsync(buffer, 0, bytesRead, cancellationToken);
+                        await destination.WriteAsync(buffer, 0, bytesRead, cancellationToken).ConfigureAwait(false);
                         totalBytesRead += bytesRead;
                         var progressPercentage = ((float)totalBytesRead / contentLength.Value) * 100;
                         progress.Invoke(progressPercentage);

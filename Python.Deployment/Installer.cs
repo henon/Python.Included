@@ -78,7 +78,7 @@ namespace Python.Deployment
             Environment.SetEnvironmentVariable("PATH", $"{EmbeddedPythonHome};" + Environment.GetEnvironmentVariable("PATH"));
             if (!force && Directory.Exists(EmbeddedPythonHome) && File.Exists(Path.Combine(EmbeddedPythonHome, "python.exe"))) // python seems installed, so exit
                 return;
-            var zip = await Source.RetrievePythonZip(InstallPath);
+            var zip = await Source.RetrievePythonZip(InstallPath).ConfigureAwait(false);
             if (string.IsNullOrWhiteSpace(zip))
             {
                 Log("SetupPython: Error obtaining zip file from installation source");
@@ -100,7 +100,7 @@ namespace Python.Deployment
                 {
                     Log("SetupPython: Error extracting zip file: " + zip);
                 }
-            });
+            }).ConfigureAwait(false);
         }
 
         /// <summary>
@@ -242,9 +242,9 @@ namespace Python.Deployment
 
             CopyEmbeddedResourceToFile(assembly, key, wheelPath, force);
 
-            await TryInstallPip();
+            await TryInstallPip().ConfigureAwait(false);
 
-            await RunCommand($"\"{pipPath}\" install \"{wheelPath}\"", token);
+            await RunCommand($"\"{pipPath}\" install \"{wheelPath}\"", token).ConfigureAwait(false);
         }
 
         private static void CopyEmbeddedResourceToFile(Assembly assembly, string resourceName, string filePath, bool force = false)
@@ -291,7 +291,7 @@ namespace Python.Deployment
         /// </param>
         public static async Task PipInstallModule(string module_name, string version = "", bool force = false, CancellationToken token = default)
         {
-            await TryInstallPip();
+            await TryInstallPip().ConfigureAwait(false);
 
             if (IsModuleInstalled(module_name) && !force)
                 return;
@@ -301,7 +301,7 @@ namespace Python.Deployment
             if (version.Length > 0)
                 version = $"=={version}";
 
-            await RunCommand($"\"{pipPath}\" install \"{module_name}{version}\" {forceInstall}", token);
+            await RunCommand($"\"{pipPath}\" install \"{module_name}{version}\" {forceInstall}", token).ConfigureAwait(false);
         }
 
         /// <summary>
@@ -328,7 +328,7 @@ namespace Python.Deployment
             try
             {
                 Log("Downloading Pip...");
-                await Downloader.Download(getPipUrl, getPipFilePath, progress => Log($"{progress:F2}%"));
+                await Downloader.Download(getPipUrl, getPipFilePath, progress => Log($"{progress:F2}%")).ConfigureAwait(false);
                 Log("Done!");
             }
             catch (Exception ex)
@@ -338,7 +338,7 @@ namespace Python.Deployment
             }
 
 
-            await RunCommand($"cd \"{EmbeddedPythonHome}\" && python.exe Lib\\get-pip.py", token);
+            await RunCommand($"cd \"{EmbeddedPythonHome}\" && python.exe Lib\\get-pip.py", token).ConfigureAwait(false);
         }
 
         public static async Task<bool> TryInstallPip(bool force = false)
@@ -347,7 +347,7 @@ namespace Python.Deployment
             {
                 try
                 {
-                    await InstallPip();
+                    await InstallPip().ConfigureAwait(false);
                 }
                 catch
                 {
@@ -432,7 +432,7 @@ namespace Python.Deployment
                 // The documentation for Process.StandardOutput says to read before you wait otherwise you can deadlock!
                 string output = process.StandardOutput.ReadToEnd();
                 Log(output);
-                await Task.Run(() => { process.WaitForExit(); }, token);
+                await Task.Run(() => { process.WaitForExit(); }, token).ConfigureAwait(false);
                 if (process.ExitCode != 0)
                 {
                     Log(process.StandardError.ReadToEnd());

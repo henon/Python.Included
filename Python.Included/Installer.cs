@@ -75,7 +75,7 @@ namespace Python.Included
                 Python.Deployment.Installer.Source = GetInstallationSource();
                 Python.Deployment.Installer.PythonDirectoryName = InstallDirectory;
                 Python.Deployment.Installer.InstallPath = InstallPath;
-                await Python.Deployment.Installer.SetupPython(force);
+                await Python.Deployment.Installer.SetupPython(force).ConfigureAwait(false);
             }
             finally
             {
@@ -110,7 +110,7 @@ namespace Python.Included
                 Python.Deployment.Installer.Source = GetInstallationSource();
                 Python.Deployment.Installer.PythonDirectoryName = InstallDirectory;
                 Python.Deployment.Installer.InstallPath = InstallPath;
-                await Python.Deployment.Installer.InstallWheel(assembly, resource_name, force);
+                await Python.Deployment.Installer.InstallWheel(assembly, resource_name, force).ConfigureAwait(false);
             }
             finally
             {
@@ -136,7 +136,7 @@ namespace Python.Included
                 Python.Deployment.Installer.Source = GetInstallationSource();
                 Python.Deployment.Installer.PythonDirectoryName = InstallDirectory;
                 Python.Deployment.Installer.InstallPath = InstallPath;
-                await Python.Deployment.Installer.PipInstallWheel(assembly, resource_name, force, token);
+                await Python.Deployment.Installer.PipInstallWheel(assembly, resource_name, force, token).ConfigureAwait(false);
             }
             finally
             {
@@ -157,7 +157,7 @@ namespace Python.Included
                 Python.Deployment.Installer.Source = GetInstallationSource();
                 Python.Deployment.Installer.PythonDirectoryName = InstallDirectory;
                 Python.Deployment.Installer.InstallPath = InstallPath;
-                await Python.Deployment.Installer.PipInstallModule(module_name, version, force, token);
+                await Python.Deployment.Installer.PipInstallModule(module_name, version, force, token).ConfigureAwait(false);
             }
             finally
             {
@@ -179,7 +179,7 @@ namespace Python.Included
                 Python.Deployment.Installer.Source = GetInstallationSource();
                 Python.Deployment.Installer.PythonDirectoryName = InstallDirectory;
                 Python.Deployment.Installer.InstallPath = InstallPath;
-                await Python.Deployment.Installer.InstallPip(token);
+                await Python.Deployment.Installer.InstallPip(token).ConfigureAwait(false);
             }
             finally
             {
@@ -193,7 +193,7 @@ namespace Python.Included
             {
                 try
                 {
-                    await InstallPip();
+                    await InstallPip().ConfigureAwait(false);
                 }
                 catch
                 {

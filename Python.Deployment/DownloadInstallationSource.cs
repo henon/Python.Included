@@ -53,7 +53,7 @@ namespace Python.Deployment
                 try
                 {
                     Log("Downloading source...");
-                    await Downloader.Download(DownloadUrl, zipFile, progress => Log($"{progress:F2}%"));
+                    await Downloader.Download(DownloadUrl, zipFile, progress => Log($"{progress:F2}%")).ConfigureAwait(false);
                     Log("Done!");
                     return zipFile;
                 }
@@ -126,7 +126,7 @@ namespace Python.Deployment
                     // The documentation for Process.StandardOutput says to read before you wait otherwise you can deadlock!
                     string output = process.StandardOutput.ReadToEnd();
                     Log(output);
-                    await Task.Run(() => { process.WaitForExit(); }, token);
+                    await Task.Run(() => { process.WaitForExit(); }, token).ConfigureAwait(false);
                     if (process.ExitCode != 0)
                         Log(" => exit code " + process.ExitCode);
                 }
