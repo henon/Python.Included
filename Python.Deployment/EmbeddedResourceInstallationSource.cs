@@ -51,13 +51,13 @@ namespace Python.Deployment
             /// </summary>
             public string ResourceName { get; set; }
 
-            public override async Task<string> RetrievePythonZip(string destinationDirectory)
+            public override Task<string> RetrievePythonZip(string destinationDirectory)
             {
                 var filePath = Path.Combine(destinationDirectory, ResourceName);
                 if (!Force && File.Exists(filePath))
-                    return filePath;
+                    return Task.FromResult(filePath);
                 CopyEmbeddedResourceToFile(Assembly, GetPythonDistributionName(), filePath);
-                return filePath;
+                return Task.FromResult(filePath);
             }
 
             public override string GetPythonZipFileName()
