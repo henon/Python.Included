@@ -61,7 +61,7 @@ namespace Python.Included
             LogMessage?.Invoke(message);
         }
 
-        public static async Task SetupPython(bool force = false)
+        public static async Task SetupPython(Action<float> progress = null, CancellationToken token = default, bool force = false)
         {
             if (!PythonEnv.DeployEmbeddedPython)
                 return;
@@ -75,7 +75,7 @@ namespace Python.Included
                 Python.Deployment.Installer.Source = GetInstallationSource();
                 Python.Deployment.Installer.PythonDirectoryName = InstallDirectory;
                 Python.Deployment.Installer.InstallPath = InstallPath;
-                await Python.Deployment.Installer.SetupPython(force).ConfigureAwait(false);
+                await Python.Deployment.Installer.SetupPython(progress, token, force).ConfigureAwait(false);
             }
             finally
             {
@@ -149,7 +149,7 @@ namespace Python.Included
         /// </summary>
         /// <param name="module_name">The module/package to install </param>
         /// <param name="force">When true, reinstall the packages even if it is already up-to-date.</param>
-        public static async Task PipInstallModule(string module_name, string version = "", bool force = false, CancellationToken token = default)
+        public static async Task PipInstallModule(string module_name, string version = "", bool force = false, Action<float> progress = null, CancellationToken token = default)
         {
             try
             {
@@ -157,7 +157,7 @@ namespace Python.Included
                 Python.Deployment.Installer.Source = GetInstallationSource();
                 Python.Deployment.Installer.PythonDirectoryName = InstallDirectory;
                 Python.Deployment.Installer.InstallPath = InstallPath;
-                await Python.Deployment.Installer.PipInstallModule(module_name, version, force, token).ConfigureAwait(false);
+                await Python.Deployment.Installer.PipInstallModule(module_name, version, force, progress, token).ConfigureAwait(false);
             }
             finally
             {
@@ -171,7 +171,7 @@ namespace Python.Included
         /// <remarks>
         /// Creates the lib folder under <see cref="EmbeddedPythonHome"/> if it does not exist.
         /// </remarks>
-        public static async Task InstallPip(CancellationToken token = default)
+        public static async Task InstallPip(Action<float> progress = null, CancellationToken token = default)
         {
             try
             {
@@ -179,7 +179,7 @@ namespace Python.Included
                 Python.Deployment.Installer.Source = GetInstallationSource();
                 Python.Deployment.Installer.PythonDirectoryName = InstallDirectory;
                 Python.Deployment.Installer.InstallPath = InstallPath;
-                await Python.Deployment.Installer.InstallPip(token).ConfigureAwait(false);
+                await Python.Deployment.Installer.InstallPip(progress, token).ConfigureAwait(false);
             }
             finally
             {
@@ -187,13 +187,13 @@ namespace Python.Included
             }
         }
 
-        public static async Task<bool> TryInstallPip(bool force = false)
+        public static async Task<bool> TryInstallPip(Action<float> progress = null, CancellationToken token = default, bool force = false)
         {
             if (!IsPipInstalled() || force)
             {
                 try
                 {
-                    await InstallPip().ConfigureAwait(false);
+                    await InstallPip(progress, token).ConfigureAwait(false);
                 }
                 catch
                 {

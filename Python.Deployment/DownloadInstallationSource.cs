@@ -44,7 +44,7 @@ namespace Python.Deployment
             /// </summary>
             public string DownloadUrl { get; set; }
 
-            public override async Task<string> RetrievePythonZip(string destinationDirectory)
+            public override async Task<string> RetrievePythonZip(string destinationDirectory, Action<float> progress = null, CancellationToken token = default)
             {
                 var zipFile = Path.Combine(destinationDirectory, GetPythonZipFileName());
                 if (!Force && File.Exists(zipFile))
@@ -53,7 +53,7 @@ namespace Python.Deployment
                 try
                 {
                     Log("Downloading source...");
-                    await Downloader.Download(DownloadUrl, zipFile, progress => Log($"{progress:F2}%")).ConfigureAwait(false);
+                    await Downloader.Download(DownloadUrl, zipFile, p => { Log($"{p:F2}%"); progress?.Invoke(p); }, token).ConfigureAwait(false);
                     Log("Done!");
                     return zipFile;
                 }

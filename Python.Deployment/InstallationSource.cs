@@ -29,6 +29,7 @@ using System.Linq;
 using System.Reflection;
 using System.Text;
 using System.Text.RegularExpressions;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace Python.Deployment
@@ -46,7 +47,7 @@ namespace Python.Deployment
             /// </summary>
             /// <param name="destinationDirectory">The directory location where the retrieved zip file should be placed</param>
             /// <returns></returns>
-            public abstract Task<string> RetrievePythonZip(string destinationDirectory);
+            public abstract Task<string> RetrievePythonZip(string destinationDirectory, Action<float> progress = null, CancellationToken token = default);
 
             /// <summary>
             /// If true, retrieve the python file again even if it already exists at the destination path
