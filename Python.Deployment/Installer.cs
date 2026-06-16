@@ -302,7 +302,7 @@ namespace Python.Deployment
             if (version.Length > 0)
                 version = $"=={version}";
 
-            await RunCommand($"python -u -m \"{pipPath}\" install \"{module_name}{version}\" --no-cache-dir --progress-bar on {forceInstall}", token, progress).ConfigureAwait(false);
+            await RunCommand($"python -u \"{pipPath}\" install \"{module_name}{version}\" --no-cache-dir --progress-bar on{forceInstall}", token, progress).ConfigureAwait(false);
         }
 
         /// <summary>
