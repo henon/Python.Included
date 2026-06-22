@@ -297,12 +297,13 @@ namespace Python.Deployment
             if (IsModuleInstalled(module_name) && !force)
                 return;
 
-            string pipPath = Path.Combine(EmbeddedPythonHome, "Scripts", "pip");
+            string pythonPath = Path.Combine(EmbeddedPythonHome, "python.exe");
             string forceInstall = force ? " --force-reinstall" : "";
             if (version.Length > 0)
                 version = $"=={version}";
 
-            await RunCommand($"python -u \"{pipPath}\" install \"{module_name}{version}\" --no-cache-dir --progress-bar on{forceInstall}", token, progress).ConfigureAwait(false);
+            await RunCommand(
+                $"-u -m pip install \"{module_name}{version}\" --no-cache-dir --progress-bar raw{forceInstall}", token, progress, pythonPath).ConfigureAwait(false);
         }
 
         /// <summary>
@@ -378,22 +379,32 @@ namespace Python.Deployment
             return Directory.Exists(moduleDir) && File.Exists(Path.Combine(moduleDir, "__init__.py"));
         }
 
-        public static async Task RunCommand(string command, CancellationToken token, Action<float> progress = null)
+        public static async Task RunCommand(string command, CancellationToken token, Action<float> progress = null, string filename = null)
         {
             Process process = new Process();
             try
             {
-                string filename, args;
+                string args;
 
                 if (RuntimeInformation.IsOSPlatform(OSPlatform.Linux))
                 {
-                    filename = "/bin/bash";
+                    if (string.IsNullOrEmpty(filename))
+                        filename = "/bin/bash";
                     args = $"-c \"{command}\"";
                 }
                 else
                 {
-                    filename = "cmd.exe";
-                    args = $"/C \"{command}\"";
+                    if (string.IsNullOrEmpty(filename))
+                    {
+                        // 没有指定 filename，走 cmd.exe
+                        filename = "cmd.exe";
+                        args = $"/C \"{command}\"";
+                    }
+                    else
+                    {
+                        // 直接启动指定程序，不加 /C
+                        args = command;
+                    }
                 }
 
                 Log($"> {filename} {args}");
@@ -411,6 +422,12 @@ namespace Python.Deployment
                     WindowStyle = ProcessWindowStyle.Hidden,
                 };
 
+                // 关键：禁用 Python 和 pip 的输出缓冲
+                startInfo.Environment["PYTHONUNBUFFERED"] = "1";
+                startInfo.Environment["PYTHONIOENCODING"] = "utf-8";
+                startInfo.Environment["PIP_NO_COLOR"] = "1";        // 去掉颜色转义字符干扰
+                startInfo.Environment["COLUMNS"] = "200";            // 避免 pip 截断进度行
+
                 process.StartInfo = startInfo;
                 process.Start();
 
@@ -422,13 +439,13 @@ namespace Python.Deployment
 
                 var readStdOut = ReadStreamAsync(process.StandardOutput, line =>
                 {
-                    Log(line);
+                    Log($"[ERR] '{line}'"); // 看 stderr 收到什么
                     ParsePipProgress(line, progress);
                 }, token);
 
                 var readStdErr = ReadStreamAsync(process.StandardError, line =>
                 {
-                    Log(line);
+                    Log($"[ERR] '{line}'"); // 看 stderr 收到什么
                     Console.WriteLine(line);
                 }, token);
 
@@ -454,53 +471,55 @@ namespace Python.Deployment
             }
         }
 
-        private static async Task ReadStreamAsync(
-            StreamReader reader,
-            Action<string> onLine,
-            CancellationToken token)
+        private static async Task ReadStreamAsync(StreamReader reader, Action<string> callback, CancellationToken token)
         {
-            string line;
-            while ((line = await reader.ReadLineAsync().ConfigureAwait(false)) != null)
+            var sb = new System.Text.StringBuilder();
+            char[] buf = new char[1];
+
+            while (!reader.EndOfStream && !token.IsCancellationRequested)
             {
-                token.ThrowIfCancellationRequested();
-                onLine?.Invoke(line);
+                int read = await reader.ReadAsync(buf, 0, 1).ConfigureAwait(false);
+                if (read == 0) break;
+
+                char c = buf[0];
+                if (c == '\n' || c == '\r')
+                {
+                    if (sb.Length > 0)
+                    {
+                        callback(sb.ToString());
+                        sb.Clear();
+                    }
+                }
+                else
+                {
+                    sb.Append(c);
+                }
             }
+
+            // 读完剩余内容
+            if (sb.Length > 0)
+                callback(sb.ToString());
         }
 
         private static void ParsePipProgress(string line, Action<float> progress)
         {
             if (progress == null) return;
-            Console.WriteLine(line);
-            // pip 新版 (≥22.0): "  6.4/15.9 MB  1.2 MB/s"
-            var newPip = Regex.Match(line, @"([\d.]+)/([\d.]+)\s*(KB|MB|GB)");
-            if (newPip.Success)
+
+            // 匹配 "Progress 已下载 of 总大小"
+            var match = System.Text.RegularExpressions.Regex.Match(
+                line, @"Progress (\d+) of (\d+)"
+            );
+
+            if (match.Success)
             {
-                if (float.TryParse(newPip.Groups[1].Value, out float current) &&
-                    float.TryParse(newPip.Groups[2].Value, out float total) &&
+                if (long.TryParse(match.Groups[1].Value, out long current) &&
+                    long.TryParse(match.Groups[2].Value, out long total) &&
                     total > 0)
                 {
-                    progress.Invoke(Math.Min(current / total * 100.0f, 100.0f));
-                    return;
+                    float percent = (float)current / total * 100f;
+                    progress(Math.Min(Math.Max(percent, 0f), 99f));
                 }
             }
-
-            // pip 旧版 (<22.0): "  |████████░░░░|"
-            var oldPip = Regex.Match(line, @"\|(█+)(░*)\|");
-            if (oldPip.Success)
-            {
-                int filled = oldPip.Groups[1].Value.Length;
-                int empty = oldPip.Groups[2].Value.Length;
-                int total = filled + empty;
-                if (total > 0)
-                {
-                    progress.Invoke((float)filled / total);
-                    return;
-                }
-            }
-
-            // 开始下载时重置为 0
-            if (Regex.IsMatch(line, @"Downloading .+\.whl"))
-                progress.Invoke(0.0f);
         }
         private static bool AreAllFilesAlreadyPresent(ZipArchive zip, string lib)
         {
