@@ -388,6 +388,7 @@ namespace Python.Deployment
 
                 if (RuntimeInformation.IsOSPlatform(OSPlatform.Linux))
                 {
+                    // Unix/Linux/macOS specific command execution
                     if (string.IsNullOrEmpty(filename))
                         filename = "/bin/bash";
                     args = $"-c \"{command}\"";
@@ -396,13 +397,12 @@ namespace Python.Deployment
                 {
                     if (string.IsNullOrEmpty(filename))
                     {
-                        // 没有指定 filename，走 cmd.exe
+                        // Windows specific command execution
                         filename = "cmd.exe";
                         args = $"/C \"{command}\"";
                     }
                     else
                     {
-                        // 直接启动指定程序，不加 /C
                         args = command;
                     }
                 }
@@ -422,15 +422,18 @@ namespace Python.Deployment
                     WindowStyle = ProcessWindowStyle.Hidden,
                 };
 
-                // 关键：禁用 Python 和 pip 的输出缓冲
+                // Key: Disable output buffering for Python and pip
                 startInfo.Environment["PYTHONUNBUFFERED"] = "1";
                 startInfo.Environment["PYTHONIOENCODING"] = "utf-8";
-                startInfo.Environment["PIP_NO_COLOR"] = "1";        // 去掉颜色转义字符干扰
-                startInfo.Environment["COLUMNS"] = "200";            // 避免 pip 截断进度行
+                startInfo.Environment["PIP_NO_COLOR"] = "1";
+                startInfo.Environment["COLUMNS"] = "200";
 
                 process.StartInfo = startInfo;
                 process.Start();
-
+                // Note: see https://github.com/henon/Python.Included/issues/55#issuecomment-1634750418
+                // as to why the following lines are commented out
+                //process.BeginOutputReadLine();
+                //process.BeginErrorReadLine();
                 token.Register(() =>
                 {
                     try { if (!process.HasExited) process.Kill(); }
@@ -439,13 +442,13 @@ namespace Python.Deployment
 
                 var readStdOut = ReadStreamAsync(process.StandardOutput, line =>
                 {
-                    Log($"[ERR] '{line}'"); // 看 stderr 收到什么
+                    Log($"[ERR] '{line}'");
                     ParsePipProgress(line, progress);
                 }, token);
 
                 var readStdErr = ReadStreamAsync(process.StandardError, line =>
                 {
-                    Log($"[ERR] '{line}'"); // 看 stderr 收到什么
+                    Log($"[ERR] '{line}'");
                     Console.WriteLine(line);
                 }, token);
 
@@ -459,7 +462,7 @@ namespace Python.Deployment
             }
             catch (OperationCanceledException)
             {
-                Log("RunCommand: 已取消");
+                Log("RunCommand: Cancelled");
             }
             catch (Exception e)
             {
@@ -496,7 +499,6 @@ namespace Python.Deployment
                 }
             }
 
-            // 读完剩余内容
             if (sb.Length > 0)
                 callback(sb.ToString());
         }
@@ -505,7 +507,6 @@ namespace Python.Deployment
         {
             if (progress == null) return;
 
-            // 匹配 "Progress 已下载 of 总大小"
             var match = System.Text.RegularExpressions.Regex.Match(
                 line, @"Progress (\d+) of (\d+)"
             );
