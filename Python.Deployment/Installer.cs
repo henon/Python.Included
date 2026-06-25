@@ -302,8 +302,11 @@ namespace Python.Deployment
             if (version.Length > 0)
                 version = $"=={version}";
 
-            await RunCommand(
-                $"-u -m pip install \"{module_name}{version}\" --no-cache-dir --progress-bar raw{forceInstall}", token, progress, pythonPath).ConfigureAwait(false);
+            await RunPipCommand(
+                $"-u -m pip install \"{module_name}{version}\" --no-cache-dir --progress-bar raw{forceInstall}",
+                token,
+                progress,
+                pythonPath).ConfigureAwait(false);
         }
 
         /// <summary>
@@ -339,8 +342,7 @@ namespace Python.Deployment
                 return;
             }
 
-
-            await RunCommand($"cd \"{EmbeddedPythonHome}\" && python.exe Lib\\get-pip.py", token, progress).ConfigureAwait(false);
+            await RunCommand($"cd \"{EmbeddedPythonHome}\" && python.exe Lib\\get-pip.py", token).ConfigureAwait(false);
         }
 
         public static async Task<bool> TryInstallPip(Action<float> progress = null, CancellationToken token = default, bool force = false)
@@ -379,7 +381,79 @@ namespace Python.Deployment
             return Directory.Exists(moduleDir) && File.Exists(Path.Combine(moduleDir, "__init__.py"));
         }
 
-        public static async Task RunCommand(string command, CancellationToken token, Action<float> progress = null, string filename = null)
+        public static async Task RunCommand(string command, CancellationToken token)
+        {
+            Process process = new Process();
+            try
+            {
+                string args = null;
+                string filename = null;
+                ProcessStartInfo startInfo = new ProcessStartInfo();
+                if (RuntimeInformation.IsOSPlatform(OSPlatform.Linux))
+                {
+                    // Unix/Linux/macOS specific command execution
+                    filename = "/bin/bash";
+                    args = $"-c \"{command} \"";
+                }
+                else
+                {
+                    // Windows specific command execution
+                    filename = "cmd.exe";
+                    args = $"/C \"{command}\"";
+                }
+                Log($"> {filename} {args}");
+                startInfo = new ProcessStartInfo
+                {
+                    FileName = filename,
+                    WorkingDirectory = EmbeddedPythonHome,
+                    Arguments = args,
+
+                    // If the UseShellExecute property is true, the CreateNoWindow property value is ignored and a new window is created.
+                    // .NET Core does not support creating windows directly on Unix/Linux/macOS and the property is ignored.
+
+                    CreateNoWindow = true,
+                    UseShellExecute = false, // necessary for stdout redirection
+                    RedirectStandardError = true,
+                    RedirectStandardInput = true,
+                    RedirectStandardOutput = true,
+                    WindowStyle = ProcessWindowStyle.Hidden,
+                };
+                process.StartInfo = startInfo;
+                process.Start();
+                // Note: see https://github.com/henon/Python.Included/issues/55#issuecomment-1634750418
+                // as to why the following lines are commented out
+                //process.BeginOutputReadLine();
+                //process.BeginErrorReadLine();
+                token.Register(() =>
+                {
+                    try
+                    {
+                        if (!process.HasExited)
+                            process.Kill();
+                    }
+                    catch (Exception) { /* ignore */ }
+                });
+                // The documentation for Process.StandardOutput says to read before you wait otherwise you can deadlock!
+                string output = process.StandardOutput.ReadToEnd();
+                Log(output);
+                await Task.Run(() => { process.WaitForExit(); }, token).ConfigureAwait(false);
+                if (process.ExitCode != 0)
+                {
+                    Log(process.StandardError.ReadToEnd());
+                    Log(" => exit code " + process.ExitCode);
+                }
+            }
+            catch (Exception e)
+            {
+                Log($"RunCommand: Error with command: '{command}'\r\n{e.Message}");
+            }
+            finally
+            {
+                process?.Dispose();
+            }
+        }
+
+        private static async Task RunPipCommand(string command, CancellationToken token, Action<float> progress = null, string filename = null)
         {
             Process process = new Process();
             try
@@ -388,7 +462,6 @@ namespace Python.Deployment
 
                 if (RuntimeInformation.IsOSPlatform(OSPlatform.Linux))
                 {
-                    // Unix/Linux/macOS specific command execution
                     if (string.IsNullOrEmpty(filename))
                         filename = "/bin/bash";
                     args = $"-c \"{command}\"";
@@ -397,7 +470,6 @@ namespace Python.Deployment
                 {
                     if (string.IsNullOrEmpty(filename))
                     {
-                        // Windows specific command execution
                         filename = "cmd.exe";
                         args = $"/C \"{command}\"";
                     }
@@ -414,19 +486,15 @@ namespace Python.Deployment
                     FileName = filename,
                     WorkingDirectory = EmbeddedPythonHome,
                     Arguments = args,
-
-                    // If the UseShellExecute property is true, the CreateNoWindow property value is ignored and a new window is created.
-                    // .NET Core does not support creating windows directly on Unix/Linux/macOS and the property is ignored.
-
                     CreateNoWindow = true,
-                    UseShellExecute = false,// necessary for stdout redirection
+                    UseShellExecute = false,
                     RedirectStandardError = true,
                     RedirectStandardInput = true,
                     RedirectStandardOutput = true,
                     WindowStyle = ProcessWindowStyle.Hidden,
                 };
 
-                // Key: Disable output buffering for Python and pip
+                // pip-specific output/format settings
                 startInfo.Environment["PYTHONUNBUFFERED"] = "1";
                 startInfo.Environment["PYTHONIOENCODING"] = "utf-8";
                 startInfo.Environment["PIP_NO_COLOR"] = "1";
@@ -434,10 +502,7 @@ namespace Python.Deployment
 
                 process.StartInfo = startInfo;
                 process.Start();
-                // Note: see https://github.com/henon/Python.Included/issues/55#issuecomment-1634750418
-                // as to why the following lines are commented out
-                //process.BeginOutputReadLine();
-                //process.BeginErrorReadLine();
+
                 token.Register(() =>
                 {
                     try { if (!process.HasExited) process.Kill(); }
@@ -446,7 +511,7 @@ namespace Python.Deployment
 
                 var readStdOut = ReadStreamAsync(process.StandardOutput, line =>
                 {
-                    Log($"[ERR] '{line}'");
+                    Log($"[OUT] '{line}'");
                     ParsePipProgress(line, progress);
                 }, token);
 
@@ -466,11 +531,11 @@ namespace Python.Deployment
             }
             catch (OperationCanceledException)
             {
-                Log("RunCommand: Cancelled");
+                Log("RunPipCommand: Cancelled");
             }
             catch (Exception e)
             {
-                Log($"RunCommand: Error with command: '{command}'\r\n{e.Message}");
+                Log($"RunPipCommand: Error with command: '{command}'\r\n{e.Message}");
             }
             finally
             {
@@ -526,6 +591,7 @@ namespace Python.Deployment
                 }
             }
         }
+
         private static bool AreAllFilesAlreadyPresent(ZipArchive zip, string lib)
         {
             var allFilesAllReadyPresent = true;
