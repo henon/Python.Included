@@ -414,8 +414,12 @@ namespace Python.Deployment
                     FileName = filename,
                     WorkingDirectory = EmbeddedPythonHome,
                     Arguments = args,
+
+                    // If the UseShellExecute property is true, the CreateNoWindow property value is ignored and a new window is created.
+                    // .NET Core does not support creating windows directly on Unix/Linux/macOS and the property is ignored.
+
                     CreateNoWindow = true,
-                    UseShellExecute = false,
+                    UseShellExecute = false,// necessary for stdout redirection
                     RedirectStandardError = true,
                     RedirectStandardInput = true,
                     RedirectStandardOutput = true,
