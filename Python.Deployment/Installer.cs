@@ -297,7 +297,6 @@ namespace Python.Deployment
             if (IsModuleInstalled(module_name) && !force)
                 return;
 
-            string pythonPath = Path.Combine(EmbeddedPythonHome, "python.exe");
             string forceInstall = force ? " --force-reinstall" : "";
             if (version.Length > 0)
                 version = $"=={version}";
@@ -305,8 +304,7 @@ namespace Python.Deployment
             await RunPipCommand(
                 $"-u -m pip install \"{module_name}{version}\" --no-cache-dir --progress-bar raw{forceInstall}",
                 token,
-                progress,
-                pythonPath).ConfigureAwait(false);
+                progress).ConfigureAwait(false);
         }
 
         /// <summary>
@@ -453,39 +451,20 @@ namespace Python.Deployment
             }
         }
 
-        private static async Task RunPipCommand(string command, CancellationToken token, Action<float> progress = null, string filename = null)
+        private static async Task RunPipCommand(string pipArguments, CancellationToken token, Action<float> progress = null)
         {
             Process process = new Process();
             try
             {
-                string args;
+                var pythonPath = Path.Combine(EmbeddedPythonHome, "python.exe");
 
-                if (RuntimeInformation.IsOSPlatform(OSPlatform.Linux))
-                {
-                    if (string.IsNullOrEmpty(filename))
-                        filename = "/bin/bash";
-                    args = $"-c \"{command}\"";
-                }
-                else
-                {
-                    if (string.IsNullOrEmpty(filename))
-                    {
-                        filename = "cmd.exe";
-                        args = $"/C \"{command}\"";
-                    }
-                    else
-                    {
-                        args = command;
-                    }
-                }
-
-                Log($"> {filename} {args}");
+                Log($"> \"{pythonPath}\" {pipArguments}");
 
                 var startInfo = new ProcessStartInfo
                 {
-                    FileName = filename,
+                    FileName = pythonPath,
                     WorkingDirectory = EmbeddedPythonHome,
-                    Arguments = args,
+                    Arguments = pipArguments,
                     CreateNoWindow = true,
                     UseShellExecute = false,
                     RedirectStandardError = true,
@@ -535,7 +514,7 @@ namespace Python.Deployment
             }
             catch (Exception e)
             {
-                Log($"RunPipCommand: Error with command: '{command}'\r\n{e.Message}");
+                Log($"RunPipCommand: Error with arguments: '{pipArguments}'\r\n{e.Message}");
             }
             finally
             {
