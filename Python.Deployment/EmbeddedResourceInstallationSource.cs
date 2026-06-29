@@ -28,6 +28,7 @@ using System.IO;
 using System.Linq;
 using System.Reflection;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace Python.Deployment
@@ -51,7 +52,7 @@ namespace Python.Deployment
             /// </summary>
             public string ResourceName { get; set; }
 
-            public override Task<string> RetrievePythonZip(string destinationDirectory)
+            public override Task<string> RetrievePythonZip(string destinationDirectory, Action<float> progress = null, CancellationToken token = default)
             {
                 var filePath = Path.Combine(destinationDirectory, ResourceName);
                 if (!Force && File.Exists(filePath))

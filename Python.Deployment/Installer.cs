@@ -29,6 +29,7 @@ using System.IO.Compression;
 using System.Linq;
 using System.Reflection;
 using System.Runtime.InteropServices;
+using System.Text.RegularExpressions;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -73,12 +74,12 @@ namespace Python.Deployment
             LogMessage?.Invoke(message);
         }
 
-        public static async Task SetupPython(bool force = false)
+        public static async Task SetupPython(Action<float> progress = null, CancellationToken token = default, bool force = false)
         {
             Environment.SetEnvironmentVariable("PATH", $"{EmbeddedPythonHome};" + Environment.GetEnvironmentVariable("PATH"));
             if (!force && Directory.Exists(EmbeddedPythonHome) && File.Exists(Path.Combine(EmbeddedPythonHome, "python.exe"))) // python seems installed, so exit
                 return;
-            var zip = await Source.RetrievePythonZip(InstallPath).ConfigureAwait(false);
+            var zip = await Source.RetrievePythonZip(InstallPath, progress, token).ConfigureAwait(false);
             if (string.IsNullOrWhiteSpace(zip))
             {
                 Log("SetupPython: Error obtaining zip file from installation source");
@@ -242,7 +243,7 @@ namespace Python.Deployment
 
             CopyEmbeddedResourceToFile(assembly, key, wheelPath, force);
 
-            await TryInstallPip().ConfigureAwait(false);
+            await TryInstallPip(token: token).ConfigureAwait(false);
 
             await RunCommand($"\"{pipPath}\" install \"{wheelPath}\"", token).ConfigureAwait(false);
         }
@@ -289,19 +290,21 @@ namespace Python.Deployment
         /// terminate when complete. When true, the command window must be manually closed before
         /// processing will continue.
         /// </param>
-        public static async Task PipInstallModule(string module_name, string version = "", bool force = false, CancellationToken token = default)
+        public static async Task PipInstallModule(string module_name, string version = "", bool force = false, Action<float> progress = null, CancellationToken token = default)
         {
-            await TryInstallPip().ConfigureAwait(false);
+            await TryInstallPip(progress, token, force).ConfigureAwait(false);
 
             if (IsModuleInstalled(module_name) && !force)
                 return;
 
-            string pipPath = Path.Combine(EmbeddedPythonHome, "Scripts", "pip");
             string forceInstall = force ? " --force-reinstall" : "";
             if (version.Length > 0)
                 version = $"=={version}";
 
-            await RunCommand($"\"{pipPath}\" install \"{module_name}{version}\" {forceInstall}", token).ConfigureAwait(false);
+            await RunPipCommand(
+                $"-u -m pip install \"{module_name}{version}\" --no-cache-dir --progress-bar raw{forceInstall}",
+                token,
+                progress).ConfigureAwait(false);
         }
 
         /// <summary>
@@ -315,7 +318,7 @@ namespace Python.Deployment
         /// terminate when complete. When true, the command window must be manually closed before
         /// processing will continue.
         /// </param>
-        public static async Task InstallPip(CancellationToken token = default)
+        public static async Task InstallPip(Action<float> progress = null, CancellationToken token = default)
         {
             string libDir = Path.Combine(EmbeddedPythonHome, "Lib");
 
@@ -328,7 +331,7 @@ namespace Python.Deployment
             try
             {
                 Log("Downloading Pip...");
-                await Downloader.Download(getPipUrl, getPipFilePath, progress => Log($"{progress:F2}%")).ConfigureAwait(false);
+                await Downloader.Download(getPipUrl, getPipFilePath, p => { Log($"{p:F2}%"); progress?.Invoke(p); }).ConfigureAwait(false);
                 Log("Done!");
             }
             catch (Exception ex)
@@ -337,17 +340,16 @@ namespace Python.Deployment
                 return;
             }
 
-
             await RunCommand($"cd \"{EmbeddedPythonHome}\" && python.exe Lib\\get-pip.py", token).ConfigureAwait(false);
         }
 
-        public static async Task<bool> TryInstallPip(bool force = false)
+        public static async Task<bool> TryInstallPip(Action<float> progress = null, CancellationToken token = default, bool force = false)
         {
             if (!IsPipInstalled() || force)
             {
                 try
                 {
-                    await InstallPip().ConfigureAwait(false);
+                    await InstallPip(progress, token).ConfigureAwait(false);
                 }
                 catch
                 {
@@ -446,6 +448,126 @@ namespace Python.Deployment
             finally
             {
                 process?.Dispose();
+            }
+        }
+
+        private static async Task RunPipCommand(string pipArguments, CancellationToken token, Action<float> progress = null)
+        {
+            Process process = new Process();
+            try
+            {
+                var pythonPath = Path.Combine(EmbeddedPythonHome, "python.exe");
+
+                Log($"> \"{pythonPath}\" {pipArguments}");
+
+                var startInfo = new ProcessStartInfo
+                {
+                    FileName = pythonPath,
+                    WorkingDirectory = EmbeddedPythonHome,
+                    Arguments = pipArguments,
+                    CreateNoWindow = true,
+                    UseShellExecute = false,
+                    RedirectStandardError = true,
+                    RedirectStandardInput = true,
+                    RedirectStandardOutput = true,
+                    WindowStyle = ProcessWindowStyle.Hidden,
+                };
+
+                // pip-specific output/format settings
+                startInfo.Environment["PYTHONUNBUFFERED"] = "1";
+                startInfo.Environment["PYTHONIOENCODING"] = "utf-8";
+                startInfo.Environment["PIP_NO_COLOR"] = "1";
+                startInfo.Environment["COLUMNS"] = "200";
+
+                process.StartInfo = startInfo;
+                process.Start();
+
+                token.Register(() =>
+                {
+                    try { if (!process.HasExited) process.Kill(); }
+                    catch (Exception) { /* ignore */ }
+                });
+
+                var readStdOut = ReadStreamAsync(process.StandardOutput, line =>
+                {
+                    Log($"[OUT] '{line}'");
+                    ParsePipProgress(line, progress);
+                }, token);
+
+                var readStdErr = ReadStreamAsync(process.StandardError, line =>
+                {
+                    Log($"[ERR] '{line}'");
+                    Console.WriteLine(line);
+                }, token);
+
+                await Task.WhenAll(readStdOut, readStdErr).ConfigureAwait(false);
+                await Task.Run(() => process.WaitForExit(), token).ConfigureAwait(false);
+
+                if (process.ExitCode == 0)
+                    progress?.Invoke(100.0f);
+
+                Log(" => exit code " + process.ExitCode);
+            }
+            catch (OperationCanceledException)
+            {
+                Log("RunPipCommand: Cancelled");
+            }
+            catch (Exception e)
+            {
+                Log($"RunPipCommand: Error with arguments: '{pipArguments}'\r\n{e.Message}");
+            }
+            finally
+            {
+                process?.Dispose();
+            }
+        }
+
+        private static async Task ReadStreamAsync(StreamReader reader, Action<string> callback, CancellationToken token)
+        {
+            var sb = new System.Text.StringBuilder();
+            char[] buf = new char[1];
+
+            while (!reader.EndOfStream && !token.IsCancellationRequested)
+            {
+                int read = await reader.ReadAsync(buf, 0, 1).ConfigureAwait(false);
+                if (read == 0) break;
+
+                char c = buf[0];
+                if (c == '\n' || c == '\r')
+                {
+                    if (sb.Length > 0)
+                    {
+                        callback(sb.ToString());
+                        sb.Clear();
+                    }
+                }
+                else
+                {
+                    sb.Append(c);
+                }
+            }
+
+            if (sb.Length > 0)
+                callback(sb.ToString());
+        }
+
+        private static void ParsePipProgress(string line, Action<float> progress)
+        {
+            if (progress == null) return;
+
+            var match = System.Text.RegularExpressions.Regex.Match(
+                line, @"Progress (\d+) of (\d+)"
+            );
+
+            if (match.Success)
+            {
+                if (long.TryParse(match.Groups[1].Value, out long current) &&
+                    long.TryParse(match.Groups[2].Value, out long total) &&
+                    total > 0)
+                {
+                    float percent = (float)current / total * 100f;
+                    progress(Math.Min(Math.Max(percent, 0f), 99f));
+                }
             }
         }
 
